@@ -52,7 +52,7 @@ def fetch_repos(tag: str, max_repos: int, min_stars: int, token: str | None) -> 
     while len(repos) < max_repos:
         url = "https://api.github.com/search/repositories"
         params = {
-            "q": f"topic:{tag}",
+            "q": f"topic:{tag} stars:>={min_stars}",
             "sort": "stars",
             "order": "desc",
             "per_page": min(per_page, max_repos - len(repos)),
@@ -84,8 +84,6 @@ def fetch_repos(tag: str, max_repos: int, min_stars: int, token: str | None) -> 
             break
 
         for item in items:
-            if item.get("stargazers_count", 0) < min_stars:
-                continue
             repos.append({
                 "id": item["id"],
                 "full_name": item["full_name"],
@@ -124,11 +122,11 @@ def main() -> int:
     )
     parser.add_argument("--tag", required=True,
                         help="GitHub topic tag to search (e.g. agent-skills)")
-    parser.add_argument("--max", type=int, default=200,
+    parser.add_argument("--max", type=int, default=100,
                         dest="max_repos",
-                        help="Maximum number of repos to fetch (default: 200)")
-    parser.add_argument("--min-stars", type=int, default=0,
-                        help="Minimum star count to include (default: 0)")
+                        help="Maximum number of repos to fetch (default: 100)")
+    parser.add_argument("--min-stars", type=int, default=3,
+                        help="Minimum star count to include (default: 3)")
     parser.add_argument("--output", default="repos.json",
                         help="Output JSON file path (default: repos.json)")
     args = parser.parse_args()
