@@ -153,7 +153,7 @@ def generate_readme(data: dict, tag: str) -> str:
         "[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)",
         "",
         f"*Auto-generated · {total} repositories analyzed · "
-        f"Last updated: {analyzed_at[:10] if analyzed_at else 'unknown'}*",
+        f"Last updated: `{analyzed_at[:10] if analyzed_at else 'unknown'}`*",
         "",
     ]
 
