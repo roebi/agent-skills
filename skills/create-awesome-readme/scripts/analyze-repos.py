@@ -12,6 +12,10 @@ Analyze and label GitHub repositories for the awesome-list generator.
 Fetches each repo's file tree, checks for SKILL.md files, validates
 frontmatter, scans for security signals, and assigns category/signal labels.
 
+Security signals use two levels:
+  CONFIRMED (💥 / 🚨): pattern is unambiguously dangerous
+  UNVERIFIED (⚠️):     pattern matches but may be a false positive — needs human review
+
 Usage:
   scripts/analyze-repos.py --repos repos.json --output labeled.json
   scripts/analyze-repos.py --repos repos.json --output labeled.json --limit 50
@@ -39,17 +43,54 @@ except ImportError:
 
 
 # ── Security signal patterns ────────────────────────────────────────────────
+#
+# CONFIRMED patterns: unambiguously dangerous, no legitimate use case
+# UNVERIFIED patterns: suspicious but common in legitimate scripts too
+#
+# rm -rf CONFIRMED — only fire on clearly destructive targets:
+#   rm -rf /          (root filesystem)
+#   rm -rf /*         (root with wildcard)
+#   rm -rf ~          (home directory)
+#   rm -rf ~/         (home directory with slash)
+#   rm -rf *          (wildcard from current dir — dangerous in wrong context)
+#
+# rm -rf UNVERIFIED — suspicious but needs human review:
+#   rm -rf $VAR       (unquoted variable — depends on what $VAR contains)
+#   rm -rf ${VAR}     (same with braces)
+#
+# Explicitly NOT flagged (safe, very common):
+#   rm -rf ./dist     (relative path with explicit ./)
+#   rm -rf ./tmp
+#   rm -rf ./build
+#   rm -rf node_modules
+#   rm -rf $TMPDIR/specific-subpath  (explicit subpath after variable)
 
-ENV_EXFIL_PATTERNS = [
-    re.compile(r'(env|printenv|set)\s*\|.*curl', re.IGNORECASE),
-    re.compile(r'curl.*\$\{?GITHUB_TOKEN', re.IGNORECASE),
-    re.compile(r'curl.*\$\{?secrets\.', re.IGNORECASE),
-    re.compile(r'wget.*\$(env|HOME|USER|PATH)', re.IGNORECASE),
+RM_RF_CONFIRMED = [
+    # rm -rf / or rm -rf /* (root)
+    re.compile(r'rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+/\*?(?:\s|$)', re.IGNORECASE),
+    # rm -rf ~ or rm -rf ~/
+    re.compile(r'rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+~/?(?:\s|$)', re.IGNORECASE),
+    # rm -rf * (bare wildcard, not ./*)
+    re.compile(r'rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+\*(?:\s|$)', re.IGNORECASE),
 ]
 
-RM_RF_PATTERNS = [
-    re.compile(r'rm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+(\/\*?|~\/?\*?|"\$)', re.IGNORECASE),
-    re.compile(r'rm\s+-rf\s+\$\{?\w+\}?(?!\s*#.*dry)', re.IGNORECASE),
+RM_RF_UNVERIFIED = [
+    # rm -rf $VAR or rm -rf ${VAR} where the variable is at end of line
+    # (no further path component after the variable)
+    re.compile(r'rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+\$\{?\w+\}?\s*(?:#.*)?$', re.IGNORECASE | re.MULTILINE),
+]
+
+# ENV exfiltration CONFIRMED — clearly piping env to remote
+ENV_EXFIL_CONFIRMED = [
+    re.compile(r'(env|printenv|set)\s*\|.*curl', re.IGNORECASE),
+    re.compile(r'curl[^|]*\$\{?GITHUB_TOKEN[^|]*\|\s*nc\b', re.IGNORECASE),
+]
+
+# ENV exfiltration UNVERIFIED — sending a secret via curl (common in CI but worth noting)
+ENV_EXFIL_UNVERIFIED = [
+    re.compile(r'curl.*\$\{?GITHUB_TOKEN', re.IGNORECASE),
+    re.compile(r'curl.*\$\{?secrets\.', re.IGNORECASE),
+    re.compile(r'wget.*\$(HOME|USER|PATH)\b', re.IGNORECASE),
 ]
 
 SKILL_RELEVANT_KEYWORDS = {
@@ -138,15 +179,32 @@ def validate_frontmatter(fm: dict) -> list[str]:
 
 
 def scan_for_security_signals(content: str) -> list[str]:
+    """
+    Returns list of signal label strings.
+    Confirmed dangerous patterns → 'rm-rf' or 'env-stealer'
+    Unverified/suspicious patterns → 'rm-rf?' or 'env-stealer?'
+    A confirmed signal supersedes the unverified one for the same type.
+    """
     signals = []
-    for pattern in ENV_EXFIL_PATTERNS:
-        if pattern.search(content):
-            signals.append("env-stealer")
-            break
-    for pattern in RM_RF_PATTERNS:
-        if pattern.search(content):
-            signals.append("rm-rf")
-            break
+
+    # Check rm-rf confirmed first
+    rm_confirmed = any(p.search(content) for p in RM_RF_CONFIRMED)
+    if rm_confirmed:
+        signals.append("rm-rf")
+    else:
+        rm_unverified = any(p.search(content) for p in RM_RF_UNVERIFIED)
+        if rm_unverified:
+            signals.append("rm-rf?")
+
+    # Check env-stealer confirmed first
+    env_confirmed = any(p.search(content) for p in ENV_EXFIL_CONFIRMED)
+    if env_confirmed:
+        signals.append("env-stealer")
+    else:
+        env_unverified = any(p.search(content) for p in ENV_EXFIL_UNVERIFIED)
+        if env_unverified:
+            signals.append("env-stealer?")
+
     return signals
 
 
@@ -154,6 +212,7 @@ def is_misleading(repo: dict, has_skill_md: bool) -> bool:
     if has_skill_md:
         return False
     desc = (repo.get("description") or "").lower()
+    name = repo.get("name", "").lower()
     topics = [t.lower() for t in repo.get("topics", [])]
     lang = repo.get("language")
 
@@ -214,7 +273,7 @@ def classify_repo(repo: dict, tree: list[str], skill_mds: list[str], security_si
     # Signal labels
     signals = list(security_signals)
     if has_skill_md:
-        signals.append("spec-compliant")  # will be downgraded if validation fails
+        signals.append("spec-compliant")  # downgraded later if validation fails
     if has_scripts:
         signals.append("has-scripts")
     if has_references:
@@ -253,20 +312,18 @@ def analyze_repo(repo: dict, headers: dict) -> dict:
     validation_errors = []
 
     # Analyze SKILL.md files
-    valid_skill_mds = []
-    for skill_path in skill_md_paths[:5]:  # limit to first 5 to avoid rate limit
+    for skill_path in skill_md_paths[:5]:
         content = get_file_content(owner, name, skill_path, headers)
         if content:
             fm = parse_skill_md_frontmatter(content)
             if fm:
                 errs = validate_frontmatter(fm)
                 validation_errors.extend(errs)
-                if not errs:
-                    valid_skill_mds.append(skill_path)
-            time.sleep(0.3)
+        time.sleep(0.3)
 
     # Scan scripts for security signals
-    script_paths = [p for p in tree if p.startswith("scripts/") and
+    script_paths = [p for p in tree if
+                    (p.startswith("scripts/") or "/scripts/" in p) and
                     (p.endswith(".py") or p.endswith(".sh") or p.endswith(".bash"))]
     for script_path in script_paths[:10]:
         content = get_file_content(owner, name, script_path, headers)
