@@ -92,7 +92,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          SKILL_CONTEXT=$(aider-skills tmpfile _skills/skills/create-awesome-readme)
+          SKILL_CONTEXT=$(aider-skills tmpfile _skills/skills/)
 
           aider \
             --model claude-sonnet-4-5 \
