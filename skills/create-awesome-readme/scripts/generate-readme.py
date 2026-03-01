@@ -55,20 +55,38 @@ CATEGORY_DESCRIPTIONS = {
 }
 
 SIGNAL_ICONS = {
-    "spec-compliant": "✅",
-    "multi-agent":    "🌐",
-    "has-scripts":    "📜",
-    "has-references": "📚",
-    "misleading":     "⚠️",
-    "env-stealer":    "🚨",
-    "rm-rf":          "💥",
-    "archived":       "🗄️",
-    "stale":          "💤",
-    "no-license":     "🔓",
-    "spec-errors":    "❌",
+    # Positive signals
+    "spec-compliant":  "✅",
+    "multi-agent":     "🌐",
+    "has-scripts":     "📜",
+    "has-references":  "📚",
+    # Advisory signals — confirmed
+    "env-stealer":     "🚨",
+    "rm-rf":           "💥",
+    "misleading":      "⚠️",
+    "archived":        "🗄️",
+    "stale":           "💤",
+    "no-license":      "🔓",
+    "spec-errors":     "❌",
+    # Advisory signals — unverified (needs human review)
+    "env-stealer?":    "⚠️",
+    "rm-rf?":          "⚠️",
 }
 
-ADVISORY_SIGNALS = {"misleading", "env-stealer", "rm-rf", "archived", "stale", "no-license", "spec-errors", "error"}
+# All signals that are cautionary (shown after positive ones)
+ADVISORY_SIGNALS = {
+    "misleading", "archived", "stale", "no-license", "spec-errors", "error",
+    # Confirmed security
+    "env-stealer", "rm-rf",
+    # Unverified security
+    "env-stealer?", "rm-rf?",
+}
+
+# Signals counted as confirmed security findings in summary
+CONFIRMED_SECURITY = {"env-stealer", "rm-rf"}
+
+# Signals counted as unverified security findings in summary
+UNVERIFIED_SECURITY = {"env-stealer?", "rm-rf?"}
 
 
 def format_signals(signals: list[str]) -> str:
@@ -90,17 +108,12 @@ def format_repo_entry(repo: dict) -> str:
     lang = repo.get("language") or ""
     signals = repo.get("signal_labels", [])
 
-    # Build the line
     line = f"- **[{name}]({url})** — {desc}"
-
-    # Stars badge
     line += f" ⭐ {stars}"
 
-    # Language badge if present
     if lang:
         line += f" `{lang}`"
 
-    # Signal labels
     advisory = [s for s in signals if s in ADVISORY_SIGNALS]
     positive = [s for s in signals if s not in ADVISORY_SIGNALS]
 
@@ -117,7 +130,7 @@ def generate_readme(data: dict, tag: str) -> str:
     analyzed_at = data.get("analyzed_at", "")
     total = data.get("total", len(repos))
 
-    # Group by primary label, exclude repos with advisory-only labels from main sections
+    # Group by primary label
     by_category: dict[str, list] = {cat: [] for cat in CATEGORY_ORDER}
     for repo in repos:
         label = repo.get("primary_label", "other")
@@ -136,9 +149,18 @@ def generate_readme(data: dict, tag: str) -> str:
     misleading_count = sum(
         1 for r in repos if "misleading" in r.get("signal_labels", [])
     )
-    security_count = sum(
-        1 for r in repos if any(s in r.get("signal_labels", []) for s in ("env-stealer", "rm-rf"))
+    confirmed_security_count = sum(
+        1 for r in repos
+        if any(s in r.get("signal_labels", []) for s in CONFIRMED_SECURITY)
     )
+    unverified_security_count = sum(
+        1 for r in repos
+        if any(s in r.get("signal_labels", []) for s in UNVERIFIED_SECURITY)
+        and not any(s in r.get("signal_labels", []) for s in CONFIRMED_SECURITY)
+    )
+
+    # Date as inline code to prevent markdown renderers from bolding it
+    date_str = f"`{analyzed_at[:10]}`" if analyzed_at else "`unknown`"
 
     lines = []
 
@@ -152,8 +174,7 @@ def generate_readme(data: dict, tag: str) -> str:
         "",
         "[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)",
         "",
-        f"*Auto-generated · {total} repositories analyzed · "
-        f"Last updated: `{analyzed_at[:10] if analyzed_at else 'unknown'}`*",
+        f"*Auto-generated · {total} repositories analyzed · Last updated: {date_str}*",
         "",
     ]
 
@@ -161,12 +182,13 @@ def generate_readme(data: dict, tag: str) -> str:
     lines += [
         "## Summary",
         "",
-        f"| Category | Count |",
-        f"|----------|-------|",
+        "| Category | Count |",
+        "|----------|-------|",
         f"| Skills & collections | {skill_count} |",
         f"| Integrations & managers | {integration_count} |",
         f"| Misleading / off-topic | {misleading_count} |",
-        f"| Security signals | {security_count} |",
+        f"| Security signals confirmed 💥🚨 | {confirmed_security_count} |",
+        f"| Security signals unverified ⚠️ | {unverified_security_count} |",
         f"| Total | {total} |",
         "",
     ]
@@ -178,12 +200,15 @@ def generate_readme(data: dict, tag: str) -> str:
         "| Label | Meaning |",
         "|-------|---------|",
         "| `spec-compliant` ✅ | SKILL.md passes agentskills.io validation |",
+        "| `spec-errors` ❌ | SKILL.md found but fails validation |",
         "| `multi-agent` 🌐 | Works across multiple agent products |",
         "| `has-scripts` 📜 | Contains a `scripts/` directory |",
         "| `has-references` 📚 | Contains a `references/` directory |",
         "| `misleading` ⚠️ | Topic tag used for SEO — not actually an Agent Skill |",
-        "| `env-stealer` 🚨 | Scripts or actions exfiltrate environment variables |",
-        "| `rm-rf` 💥 | Destructive `rm -rf` without safeguards |",
+        "| `env-stealer` 🚨 | **Confirmed:** scripts exfiltrate environment variables |",
+        "| `env-stealer?` ⚠️ | **Unverified:** suspicious pattern, needs human review |",
+        "| `rm-rf` 💥 | **Confirmed:** destructive `rm -rf` on root, home, or wildcard |",
+        "| `rm-rf?` ⚠️ | **Unverified:** `rm -rf $VAR` — may be safe, needs human review |",
         "| `archived` 🗄️ | Repository is archived |",
         "| `stale` 💤 | No commits in 6+ months |",
         "| `no-license` 🔓 | No LICENSE file found |",
@@ -216,7 +241,7 @@ def generate_readme(data: dict, tag: str) -> str:
         "",
         f"This list is auto-generated from the GitHub topic "
         f"[`{tag}`](https://github.com/topics/{tag}).",
-        "To add your repository, add the `agent-skills` topic to it on GitHub.",
+        "To add your repository, simply tag it with the `agent-skills` topic on GitHub.",
         "",
         "To suggest a label correction or report a false positive, open an issue.",
         "",
