@@ -1,0 +1,147 @@
+name: Create Agent Skill
+
+# Manually triggered with parameters.
+# Lives at .github/workflows/create-skill.yml in roebi/agent-skills.
+#
+# Uses GitHub Models (gpt-4o via GITHUB_TOKEN) — no external secrets needed.
+# permissions: models: read is required for GitHub Models access.
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      # ── 1. Issue number ─────────────────────────────────────────────────
+      issue_number:
+        description: |
+          GitHub issue number (digits only, without #).
+          Used in branch name: feature/issue-<n>-<skill-name>.
+          Example: 5
+        required: true
+        default: ''
+
+      # ── 2. Skill name ────────────────────────────────────────────────────
+      skill_name:
+        description: |
+          New skill name. Lowercase letters, numbers, and hyphens only.
+          No consecutive hyphens. Must match agentskills.io spec.
+          Example: validate-xml
+        required: true
+        default: ''
+
+      # ── 3. Skill does ────────────────────────────────────────────────────
+      skill_does:
+        description: |
+          What the skill does. One or two sentences.
+          Example: Validates XML files against an XSD schema and reports errors with line numbers.
+        required: true
+        default: ''
+
+      # ── 4. Skill when ────────────────────────────────────────────────────
+      skill_when:
+        description: |
+          When to use it — trigger situations for the agent.
+          Example: Use when working with XML files, validating configuration, or checking document structure against a schema.
+        required: true
+        default: ''
+
+      # ── 5. Keywords ──────────────────────────────────────────────────────
+      skill_keywords:
+        description: |
+          Keywords helping agents identify relevant tasks. Comma separated.
+          Example: xml, validate, schema, xsd, lint
+        required: true
+        default: ''
+
+      # ── 6. Creator skill ─────────────────────────────────────────────────
+      creator_skill_url:
+        description: |
+          URL of the creator skill to use. Any GitHub URL form accepted.
+          Default: create-agent-skill from roebi/agent-skills.
+        required: false
+        default: 'https://github.com/roebi/agent-skills/blob/main/skills/create-agent-skill/SKILL.md'
+
+      # ── 7. Model ─────────────────────────────────────────────────────────
+      model:
+        description: |
+          Model for aider via GitHub Models.
+          Example: openai/gpt-4o
+        required: false
+        default: 'openai/gpt-4o'
+
+jobs:
+  create-skill:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write      # push feature branch
+      pull-requests: write # create PR
+      models: read         # GitHub Models access via GITHUB_TOKEN
+
+    steps:
+
+      - name: Checkout agent-skills repo
+        uses: actions/checkout@v4
+
+      - name: Validate parameters
+        run: |
+          if [[ -z "${{ inputs.issue_number }}" ]]; then
+            echo "ERROR: issue_number is required" && exit 1
+          fi
+          if [[ ! "${{ inputs.issue_number }}" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: issue_number must be digits only, got: ${{ inputs.issue_number }}" && exit 1
+          fi
+          if [[ -z "${{ inputs.skill_name }}" ]]; then
+            echo "ERROR: skill_name is required" && exit 1
+          fi
+          if [[ ! "${{ inputs.skill_name }}" =~ ^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$ ]]; then
+            echo "ERROR: skill_name must be lowercase, hyphens only. Got: ${{ inputs.skill_name }}" && exit 1
+          fi
+          if [[ "${{ inputs.skill_name }}" == *"--"* ]]; then
+            echo "ERROR: skill_name must not contain consecutive hyphens. Got: ${{ inputs.skill_name }}" && exit 1
+          fi
+          if [[ -z "${{ inputs.skill_does }}" ]]; then
+            echo "ERROR: skill_does is required" && exit 1
+          fi
+          if [[ -z "${{ inputs.skill_when }}" ]]; then
+            echo "ERROR: skill_when is required" && exit 1
+          fi
+          if [[ -z "${{ inputs.skill_keywords }}" ]]; then
+            echo "ERROR: skill_keywords is required" && exit 1
+          fi
+          echo "✓ Parameters valid"
+          echo "  Feature branch: feature/issue-${{ inputs.issue_number }}-${{ inputs.skill_name }}"
+
+      - name: Build container image
+        run: podman build -t create-skill:latest .
+
+      - name: Create skill
+        env:
+          OPENAI_API_BASE: https://models.inference.ai.azure.com
+          OPENAI_API_KEY:  ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN:        ${{ secrets.GITHUB_TOKEN }}
+          SKILL_NAME:      ${{ inputs.skill_name }}
+          SKILL_DOES:      ${{ inputs.skill_does }}
+          SKILL_WHEN:      ${{ inputs.skill_when }}
+          SKILL_KEYWORDS:  ${{ inputs.skill_keywords }}
+          CREATOR_SKILL_URL: ${{ inputs.creator_skill_url }}
+          MODEL:           ${{ inputs.model }}
+          GIT_REPO_URL:    https://github.com/${{ github.repository }}.git
+          FEATURE_BRANCH:  feature/issue-${{ inputs.issue_number }}-${{ inputs.skill_name }}
+          GIT_USER_NAME:   github-actions[bot]
+          GIT_USER_EMAIL:  github-actions[bot]@users.noreply.github.com
+        run: |
+          podman run --rm \
+            -e SKILL_NAME \
+            -e SKILL_DOES \
+            -e SKILL_WHEN \
+            -e SKILL_KEYWORDS \
+            -e CREATOR_SKILL_URL \
+            -e MODEL \
+            -e GIT_REPO_URL \
+            -e FEATURE_BRANCH \
+            -e GIT_USER_NAME \
+            -e GIT_USER_EMAIL \
+            -e OPENAI_API_BASE \
+            -e OPENAI_API_KEY \
+            -e GH_TOKEN \
+            create-skill:latest
