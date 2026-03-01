@@ -119,6 +119,7 @@ echo ""
 echo "Step 5: Fetching creator skill from ${CREATOR_SKILL_URL} ..."
 
 CREATOR_SKILL_TMP=$(mktemp /tmp/creator-skill-XXXXXX.md)
+export CREATOR_SKILL_TMP
 
 python3 - <<PYEOF
 import os, re, sys
