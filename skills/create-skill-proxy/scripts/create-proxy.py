@@ -356,21 +356,40 @@ def main() -> int:
     proxy_skill_path.write_text(proxy_content, encoding="utf-8")
     print(f"Wrote proxy skill: {proxy_skill_path}", file=sys.stderr)
 
-    # 9. Validate generated proxy with skills-ref if available
+    # 9. Validate generated proxy skill.
+    # aider-skills validate is the production tool — try it first.
+    # skills-ref is fallback only (its README marks it as demo/demonstration purposes only).
     print("Validating generated proxy skill...", file=sys.stderr)
+    validated = False
     try:
         result = subprocess.run(
-            ["skills-ref", "validate", str(proxy_dir)],
+            ["aider-skills", "validate", str(proxy_dir)],
             capture_output=True, text=True
         )
         if result.returncode == 0:
-            print("  ✓ Proxy skill passes skills-ref validate", file=sys.stderr)
+            print("  ✓ Proxy skill passes aider-skills validate", file=sys.stderr)
         else:
-            print(f"  ⚠ skills-ref validate output:\n{result.stdout}{result.stderr}",
+            print(f"  ⚠ aider-skills validate output:\n{result.stdout}{result.stderr}",
                   file=sys.stderr)
+        validated = True
     except FileNotFoundError:
-        print("  (skills-ref not installed — skipping validation)", file=sys.stderr)
-        print("  Install with: pip install skills-ref", file=sys.stderr)
+        pass
+
+    if not validated:
+        try:
+            result = subprocess.run(
+                ["skills-ref", "validate", str(proxy_dir)],
+                capture_output=True, text=True
+            )
+            if result.returncode == 0:
+                print("  ✓ Proxy skill passes skills-ref validate (fallback)", file=sys.stderr)
+            else:
+                print(f"  ⚠ skills-ref validate output:\n{result.stdout}{result.stderr}",
+                      file=sys.stderr)
+        except FileNotFoundError:
+            print("  (neither aider-skills nor skills-ref found — skipping validation)",
+                  file=sys.stderr)
+            print("  Install with: pip install aider-skills", file=sys.stderr)
 
     # 10. Summary
     print(f"\n✓ Created 'Skill Proxy': {proxy_dir}", file=sys.stderr)

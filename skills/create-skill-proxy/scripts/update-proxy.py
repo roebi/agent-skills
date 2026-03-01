@@ -281,18 +281,39 @@ def main() -> int:
     skill_md_path.write_text(new_skill_md, encoding="utf-8")
     print(f"  ✓ Written: {skill_md_path}", file=sys.stderr)
 
-    # Re-validate proxy
+    # Re-validate proxy.
+    # aider-skills validate is the production tool — try it first.
+    # skills-ref is fallback only (its README marks it as demo/demonstration purposes only).
+    validated = False
     try:
         result = subprocess.run(
-            ["skills-ref", "validate", str(proxy_dir)],
+            ["aider-skills", "validate", str(proxy_dir)],
             capture_output=True, text=True
         )
         if result.returncode == 0:
-            print("  ✓ 'Skill Proxy' passes skills-ref validate", file=sys.stderr)
+            print("  ✓ 'Skill Proxy' passes aider-skills validate", file=sys.stderr)
         else:
-            print(f"  ⚠ Validation output:\n{result.stdout}{result.stderr}", file=sys.stderr)
+            print(f"  ⚠ aider-skills validate output:\n{result.stdout}{result.stderr}",
+                  file=sys.stderr)
+        validated = True
     except FileNotFoundError:
-        print("  (skills-ref not installed — skipping)", file=sys.stderr)
+        pass
+
+    if not validated:
+        try:
+            result = subprocess.run(
+                ["skills-ref", "validate", str(proxy_dir)],
+                capture_output=True, text=True
+            )
+            if result.returncode == 0:
+                print("  ✓ 'Skill Proxy' passes skills-ref validate (fallback)", file=sys.stderr)
+            else:
+                print(f"  ⚠ skills-ref validate output:\n{result.stdout}{result.stderr}",
+                      file=sys.stderr)
+        except FileNotFoundError:
+            print("  (neither aider-skills nor skills-ref found — skipping validation)",
+                  file=sys.stderr)
+            print("  Install with: pip install aider-skills", file=sys.stderr)
 
     print(f"\n✓ Updated 'Skill Proxy': {proxy_dir.name}", file=sys.stderr)
     print(f"  Created by : {created_by}", file=sys.stderr)
