@@ -9,6 +9,7 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 | [`create-agent-skill`](skills/create-agent-skill/) | Scaffold a new Agent Skill following the agentskills.io spec |
 | [`create-awesome-readme`](skills/create-awesome-readme/) | Generate a curated awesome-list README from a GitHub topic tag |
 | [`create-skill-proxy`](skills/create-skill-proxy/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
+| [`skill-container-proxy`](skills/skill-container-proxy/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
 | [`terminal-cli`](skills/terminal-cli/) | Reference for operating in a Linux terminal |
 
 ## Naming conventions
@@ -61,6 +62,7 @@ Add to your `.claude/settings.json`:
     "https://github.com/roebi/agent-skills/tree/main/skills/create-agent-skill",
     "https://github.com/roebi/agent-skills/tree/main/skills/create-awesome-readme",
     "https://github.com/roebi/agent-skills/tree/main/skills/create-skill-proxy",
+    "https://github.com/roebi/agent-skills/tree/main/skills/skill-container-proxy",
     "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli"
   ]
 }
@@ -80,6 +82,7 @@ pip install skills-ref
 skills-ref validate ./skills/create-agent-skill
 skills-ref validate ./skills/create-awesome-readme
 skills-ref validate ./skills/create-skill-proxy
+skills-ref validate ./skills/skill-container-proxy
 skills-ref validate ./skills/terminal-cli
 ```
 
