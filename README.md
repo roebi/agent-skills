@@ -8,6 +8,7 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 |-------|-------------|
 | [`create-agent-skill`](skills/create-agent-skill/) | Scaffold a new Agent Skill following the agentskills.io spec |
 | [`create-awesome-readme`](skills/create-awesome-readme/) | Generate a curated awesome-list README from a GitHub topic tag |
+| [`create-skill-proxy`](skills/create-skill-proxy/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
 | [`terminal-cli`](skills/terminal-cli/) | Reference for operating in a Linux terminal |
 
 ## Naming conventions
@@ -23,7 +24,7 @@ subdirectories of `skills/` and are distinguished by naming convention only.
 | `create-skill-<type>` | `create-skill-proxy`, `create-skill-container` | Skills that scaffold other skills, by output type |
 | `create-<artifact>` | `create-awesome-readme` | Skills that produce a specific artifact or document |
 | `<tool-name>` | `terminal-cli` | Plain reference or workflow skill, named after its subject |
-| `<name>-proxy` | `nginx-proxy`, `caddy-proxy` | Skills for configuring a specific proxy tool |
+| `<n>-proxy` | `skill-container-proxy`, `caddy-proxy` | Generated proxy skills wrapping a remote skill — created by `create-skill-proxy` |
 
 **Rule:** all skill directory names (and therefore `name` fields) must be
 lowercase, hyphens only, no consecutive hyphens, no leading or trailing hyphens.
@@ -59,6 +60,7 @@ Add to your `.claude/settings.json`:
   "skills": [
     "https://github.com/roebi/agent-skills/tree/main/skills/create-agent-skill",
     "https://github.com/roebi/agent-skills/tree/main/skills/create-awesome-readme",
+    "https://github.com/roebi/agent-skills/tree/main/skills/create-skill-proxy",
     "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli"
   ]
 }
@@ -77,6 +79,7 @@ git clone https://github.com/roebi/agent-skills
 pip install skills-ref
 skills-ref validate ./skills/create-agent-skill
 skills-ref validate ./skills/create-awesome-readme
+skills-ref validate ./skills/create-skill-proxy
 skills-ref validate ./skills/terminal-cli
 ```
 
