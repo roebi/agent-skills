@@ -27,8 +27,8 @@ repository, and generates a curated `README.md` in the style of
 |-----------|----------|-------------|
 | `TAG` | Yes | GitHub topic tag, e.g. `agent-skills` |
 | `OUTPUT` | No | Output file path (default: `README.md`) |
-| `MAX_REPOS` | No | Maximum repos to process (default: 200) |
-| `MIN_STARS` | No | Filter out repos below this star count (default: 0) |
+| `MAX_REPOS` | No | Maximum repos to process (default: 40) |
+| `MIN_STARS` | No | Filter out repos below this star count — applied server-side at GitHub API (default: 3) |
 
 Environment variable `GITHUB_TOKEN` is optional but strongly recommended
 to avoid rate limiting (60 req/hr unauthenticated vs 5000/hr authenticated).
@@ -42,7 +42,7 @@ Each repository gets one **primary category label** and zero or more
 
 | Label | Meaning |
 |-------|---------|
-| `skill` | Repository contains one or more valid Agent Skills (has `SKILL.md`) |
+| `skill` | Repository contains one valid Agent Skill (has `SKILL.md`) |
 | `skill-collection` | Repository contains multiple skills |
 | `skill-integration` | Integrates or serves Agent Skills (CLI, MCP server, extension) |
 | `skill-manager` | Package manager, installer, or registry for Agent Skills |
@@ -51,20 +51,26 @@ Each repository gets one **primary category label** and zero or more
 | `example` | Demo, tutorial, or example project |
 | `other` | Tagged `agent-skills` but content is unrelated to the spec |
 
-### Signal labels (advisory)
+### Signal labels
 
-| Label | Meaning |
-|-------|---------|
-| `spec-compliant` | SKILL.md passes `skills-ref validate` |
-| `has-scripts` | Contains a `scripts/` directory |
-| `has-references` | Contains a `references/` directory |
-| `multi-agent` | Works across multiple agent products |
-| `archived` | Repository is archived |
-| `misleading` | Topic tag used for SEO — content unrelated to Agent Skills spec |
-| `env-stealer` | Scripts or actions read and exfiltrate environment variables |
-| `rm-rf` | Scripts contain destructive `rm -rf` without safeguards |
-| `no-license` | No LICENSE file found |
-| `stale` | No commits in 6+ months |
+Two confidence levels are used for security signals to avoid false accusations.
+See `references/security-labels.md` for full detection patterns.
+
+| Label | Icon | Meaning |
+|-------|------|---------|
+| `spec-compliant` | ✅ | SKILL.md passes agentskills.io validation |
+| `spec-errors` | ❌ | SKILL.md found but fails validation |
+| `multi-agent` | 🌐 | Works across multiple agent products |
+| `has-scripts` | 📜 | Contains a `scripts/` directory |
+| `has-references` | 📚 | Contains a `references/` directory |
+| `misleading` | ⚠️ | Topic tag used for SEO — content unrelated to Agent Skills |
+| `env-stealer` | 🚨 | **Confirmed:** scripts exfiltrate environment variables |
+| `env-stealer?` | ⚠️ | **Unverified:** suspicious pattern, needs human review |
+| `rm-rf` | 💥 | **Confirmed:** destructive `rm -rf` on root, home, or wildcard |
+| `rm-rf?` | ⚠️ | **Unverified:** `rm -rf $VAR` — may be safe, needs human review |
+| `archived` | 🗄️ | Repository is archived |
+| `stale` | 💤 | No commits in 6+ months |
+| `no-license` | 🔓 | No LICENSE file found |
 
 ## Workflow
 
@@ -74,13 +80,13 @@ Each repository gets one **primary category label** and zero or more
 uv run scripts/fetch-topic-repos.py \
   --tag "$TAG" \
   --max "$MAX_REPOS" \
+  --min-stars "$MIN_STARS" \
   --output repos.json
 ```
 
-This calls `https://github.com/topics/<TAG>` (HTML scraping) and the GitHub
-Search API (`https://api.github.com/search/repositories?topic=<TAG>`) to
-collect repo metadata: name, description, stars, forks, language, updated_at,
-topics, archived status.
+Calls the GitHub Search API with `q=topic:TAG stars:>=MIN_STARS` — star
+filtering happens server-side so no wasted API calls. Results are sorted
+by stars descending.
 
 ### Step 2: Analyze and label each repository
 
@@ -93,9 +99,9 @@ uv run scripts/analyze-repos.py \
 For each repository this script:
 1. Fetches the repository tree (GitHub API `/repos/{owner}/{repo}/git/trees/HEAD?recursive=1`)
 2. Checks for the presence of `SKILL.md` files (anywhere in tree)
-3. Downloads and validates each `SKILL.md` frontmatter
-4. Checks for `scripts/`, `references/`, `assets/` directories
-5. Scans scripts for security signals (`rm -rf`, `env`, `curl | bash` without pinning)
+3. Downloads and validates each `SKILL.md` frontmatter against agentskills.io spec
+4. Checks for `scripts/`, `references/` directories
+5. Scans scripts for security signals using two-level detection (confirmed / unverified)
 6. Determines primary category label and signal labels
 7. Writes enriched repo objects to `labeled.json`
 
@@ -108,68 +114,149 @@ uv run scripts/generate-readme.py \
   --output "$OUTPUT"
 ```
 
-This assembles the README in awesome-list format. See `references/readme-format.md`
-for the exact output structure.
-
-## Security label detection rules
-
-These rules are applied in `analyze-repos.py`. See `references/security-labels.md`
-for full patterns.
-
-**`env-stealer`** — any of:
-- Script sends `env` or `printenv` output to an external URL via curl/wget
-- Script exports secrets to a remote endpoint
-- GitHub Actions workflow exfiltrates `${{ secrets.* }}` to untrusted destinations
-
-**`rm-rf`** — any of:
-- `rm -rf /` or `rm -rf /*` anywhere in scripts or workflows
-- `rm -rf` on a variable path without `--dry-run` guard or explicit user confirmation
-
-**`misleading`** — heuristic: repository has `agent-skills` topic but:
-- No `SKILL.md` found anywhere in tree, AND
-- Description contains no mention of skills, agents, or Claude Code, AND
-- Primary language is not Python/Shell/TypeScript (common skill languages)
+Assembles the README in awesome-list format with sections, label legend,
+and summary table. See `references/readme-format.md` for the output structure.
 
 ## Running in GitHub Actions
 
-The skill is designed to run as a GitHub Actions workflow using an AI agent.
-See `references/github-actions.md` for the complete workflow template.
+The skill is designed to run as a scheduled GitHub Actions workflow using
+`aider-chat` + `aider-skills` for the review pass. The skill is injected
+into aider via `aider-skills tmpfile` which generates `<available_skills>`
+XML and passes it to aider via `--read`.
 
-Quick example for `roebi/awesome-agent-skills/.github/workflows/update-readme.yml`:
+The working workflow for `roebi/awesome-agent-skills` is:
 
 ```yaml
-name: Update Awesome README
+name: Update Awesome README (aider-chat)
+
 on:
   schedule:
-    - cron: '0 6 * * 1'   # Every Monday at 06:00 UTC
+    - cron: '0 15 * * 5'   # Every Friday 15:00 UTC
+    - cron: '0 6 * * 1'    # Every Monday 06:00 UTC
   workflow_dispatch:
     inputs:
       tag:
         description: 'GitHub topic tag to search'
         default: 'agent-skills'
+      max_repos:
+        description: 'Maximum repositories to process'
+        default: '40'
+      min_stars:
+        description: 'Minimum star count filter'
+        default: '3'
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      models: read
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: anthropics/claude-code-action@beta
+      - name: Checkout awesome-agent-skills repo
+        uses: actions/checkout@v4
+
+      - name: Checkout agent-skills repo (for the skill)
+        uses: actions/checkout@v4
         with:
-          prompt: |
-            Use the create-awesome-readme skill located at
-            skills/create-awesome-readme/SKILL.md.
-            Run it with TAG=${{ inputs.tag || 'agent-skills' }}.
-            Commit and push the resulting README.md.
-          skills: skills/
+          repository: roebi/agent-skills
+          path: _skills
+
+      - name: Set up Python + uv
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tools
+        run: |
+          pip install uv
+          pip install aider-chat
+          pip install aider-skills
+
+      - name: Validate skill before running
+        run: |
+          aider-skills validate _skills/skills/create-awesome-readme
+
+      - name: Run the three pipeline scripts
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run _skills/skills/create-awesome-readme/scripts/fetch-topic-repos.py \
+            --tag "${{ inputs.tag || 'agent-skills' }}" \
+            --max ${{ inputs.max_repos || '40' }} \
+            --min-stars ${{ inputs.min_stars || '3' }} \
+            --output /tmp/repos.json
+
+          uv run _skills/skills/create-awesome-readme/scripts/analyze-repos.py \
+            --repos /tmp/repos.json \
+            --output /tmp/labeled.json
+
+          uv run _skills/skills/create-awesome-readme/scripts/generate-readme.py \
+            --labeled /tmp/labeled.json \
+            --tag "${{ inputs.tag || 'agent-skills' }}" \
+            --output README.md
+
+      - name: Use aider-skills to inject skill context into aider
+        # aider-skills tmpfile generates <available_skills> XML and returns path.
+        # aider reads it via --read as read-only context at startup.
+        # GitHub Models (gpt-4o) used via GITHUB_TOKEN — no external secret needed.
+        # permissions: models: read must be set on the job for GITHUB_TOKEN to work.
+        env:
+          OPENAI_API_BASE: https://models.inference.ai.azure.com
+          OPENAI_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SKILL_CONTEXT=$(aider-skills tmpfile _skills/skills)
+
+          MSG='You have the create-awesome-readme skill loaded in context.
+              Read the skill instructions from the XML context file first.
+              Then look at each repository entry in README.md that has an empty
+              description or a description that is clearly just the repo name
+              repeated. For those entries only, write a short one-line description
+              based on the repository name, its labels, and its category section.
+              Follow the entry line format defined in the skill.
+              Do not change any other lines, labels, stars, or structure.'
+
+          aider \
+            --model openai/gpt-4o \
+            --weak-model openai/gpt-4o \
+            --read "$SKILL_CONTEXT" \
+            README.md \
+            --message "$MSG" \
+            --yes \
+            --no-auto-commits
+
+      - name: Commit and push README
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet || \
+            git commit -m "chore: update awesome list [$(date +%Y-%m-%d)]"
+          git push
 ```
+
+**Required secrets: none.**
+Both `GITHUB_TOKEN` (fetch scripts + aider model via GitHub Models) are
+auto-provided by GitHub Actions. `permissions: models: read` must be
+explicitly declared on the job for GitHub Models access to work.
+
+### Key lessons learned during development
+
+- `aider-skills tmpfile` takes the **parent** directory containing skill
+  subdirectories (`_skills/skills`), not the skill directory itself
+  (`_skills/skills/create-awesome-readme`). The `validate` command is the
+  opposite — it takes the skill directory directly.
+- `--message` strings containing double quotes must use a `MSG=` variable
+  with single-quote assignment to avoid shell parsing errors.
+- `gpt-4o-mini` on GitHub Models has an 8000 token hard limit. Use `gpt-4o`
+  which has 128k context. Do not pass `--read /tmp/labeled.json` to aider —
+  the README already contains the derived data and labeled.json is large.
+- `permissions: models: read` is required for `GITHUB_TOKEN` to access
+  `https://models.inference.ai.azure.com`. Without it the request fails
+  with "The `models` permission is required".
 
 ## Reference files
 
 - `references/readme-format.md` — exact awesome-list README structure and sections
 - `references/security-labels.md` — full detection patterns for security signal labels
-- `references/github-actions.md` — complete GitHub Actions workflow template
+- `references/github-actions.md` — full workflow templates (Variant A: aider-skills, Variant B: Claude Code)
