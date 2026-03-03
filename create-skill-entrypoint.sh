@@ -86,10 +86,6 @@ git config --global user.name  "${GIT_USER_NAME}"
 git config --global user.email "${GIT_USER_EMAIL}"
 # Use token for HTTPS auth — avoids ssh key setup
 git config --global credential.helper store
-# Strip protocol from GIT_REPO_URL to insert token
-REPO_HOST=$(echo "${GIT_REPO_URL}" | sed 's|https://||')
-echo "https://x-token:${GH_TOKEN}@github.com" > ~/.git-credentials
-chmod 600 ~/.git-credentials
 
 echo "  ✓ git configured as ${GIT_USER_NAME} <${GIT_USER_EMAIL}>"
 
