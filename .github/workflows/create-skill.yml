@@ -58,7 +58,7 @@ on:
           URL of the creator skill to use. Any GitHub URL form accepted.
           Default: create-agent-skill from roebi/agent-skills.
         required: false
-        default: 'https://github.com/roebi/agent-skills/blob/main/skills/create-agent-skill/SKILL.md'
+        default: 'https://github.com/roebi/agent-skills/blob/main/skills/create-agent-skill-en/SKILL.md'
 
       # ── 7. Model ─────────────────────────────────────────────────────────
       model:
