@@ -27,6 +27,8 @@ subdirectories of `skills/` and are distinguished by naming convention only.
 | `<tool-name>` | `terminal-cli-en` | Plain reference or workflow skill, named after its subject |
 | `<n>-proxy` | `skill-container-proxy-en`, `caddy-proxy` | Generated proxy skills wrapping a remote skill — created by `create-skill-proxy` |
 
+Additionally, all skills in this repository append a language code (e.g., `-en` for English, `-de` for German) to indicate the language in which the skill is specified.
+
 **Rule:** all skill directory names (and therefore `name` fields) must be
 lowercase, hyphens only, no consecutive hyphens, no leading or trailing hyphens.
 Run `skills-ref validate ./skills/<skill-name>` to confirm before pushing.
