@@ -1,5 +1,5 @@
 ---
-name: create-skill-proxy
+name: create-skill-proxy-en
 description: >
   Creates a local proxy skill that wraps a remote Agent Skill from any
   GitHub repository. The proxy pins the remote skill to an exact commit
@@ -8,7 +8,7 @@ description: >
   skill library, proxy a remote skill, pin and trust a skill from GitHub,
   or wrap a foreign skill safely. Trigger phrases: "proxy this skill",
   "add external skill", "wrap remote skill", "pin this skill from GitHub".
-license: Apache-2.0
+license: CC BY-NC-SA 4.0
 compatibility: Requires Python 3.11+, uv, and internet access to GitHub.
 metadata:
   author: roebi

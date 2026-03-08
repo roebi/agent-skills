@@ -1,5 +1,5 @@
 ---
-name: create-awesome-readme
+name: create-awesome-readme-en
 description: >
   Generates a curated awesome-list README.md by discovering GitHub repositories
   under a given topic tag, analyzing each repository's content, and labeling
@@ -9,6 +9,7 @@ description: >
   awesome-list maintenance. Trigger phrases: "create awesome list",
   "update awesome readme", "curate repos by topic", "generate README from
   GitHub topic", "label repos from topic tag".
+license: CC BY-NC-SA 4.0
 compatibility: Requires Python 3.11+, uv or pip. GitHub token recommended for API rate limits.
 metadata:
   author: roebi

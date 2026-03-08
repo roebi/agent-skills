@@ -1,11 +1,11 @@
 ---
-name: skill-container-proxy
+name: skill-container-proxy-en
 description: 'Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container
   format: OCI containers published to GHCR with a CLI entrypoint, a Containerfile, and GitHub-based distribution. Use when
   you want to create a new containerized skill, migrate a plain Agent Skill to Skill Container format, or package a skill
   for portable cross-platform distribution. Trigger phrases: "create skill container", "containerize this skill", "migrate
   skill to container", "package skill as OCI". Use exactly as you would use skill-container directly.'
-license: Apache-2.0
+license: CC BY-NC-SA 4.0
 metadata:
   proxy-source: https://github.com/observerw/skill-container/blob/main/SKILL.md
   proxy-raw-url: https://raw.githubusercontent.com/observerw/skill-container/86c7fa73afb55abd998f42a1e0b4ab99145f643f/SKILL.md

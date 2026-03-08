@@ -1,7 +1,8 @@
 ---
-name: fortune-cowsay
+name: fortune-cowsay-en
 description: >
   Runs fortune piped through cowsay to generate random ASCII cow art with a fun quote. Use this skill when you want a random fortune quote displayed as ASCII cow art or to generate a timestamped output file. Trigger phrases include: fortune, cowsay, ASCII cow, random quote.
+license: CC BY-NC-SA 4.0
 ---
 
 # Fortune Cowsay

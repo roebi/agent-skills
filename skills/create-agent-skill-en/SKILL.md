@@ -1,5 +1,5 @@
 ---
-name: create-agent-skill
+name: create-agent-skill-en
 description: >
   Creates a new Agent Skill that follows the agentskills.io open specification.
   Use this skill whenever a user or agent wants to author a new skill, scaffold
@@ -7,6 +7,7 @@ description: >
   an existing skill. Activate for phrases like: "create a skill", "write a
   skill", "new skill for X", "scaffold a skill", "add a skill to my repo",
   or "make a SKILL.md".
+license: CC BY-NC-SA 4.0
 compatibility: Requires bash, git. Python optional (for skills-ref validator).
 metadata:
   author: roebi
