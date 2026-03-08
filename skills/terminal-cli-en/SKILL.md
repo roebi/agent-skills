@@ -1,5 +1,5 @@
 ---
-name: terminal-cli
+name: terminal-cli-en
 description: >
   Reference for operating in a Linux terminal. Use when the user or agent needs
   to run bash commands, combine commands with && or pipes, read files, sort and
@@ -11,6 +11,7 @@ description: >
   skill for any task involving: bash, shell, terminal, CLI, script, pipe,
   podman, kubectl, helm, curl, apt, pip, environment variable, aider, or any
   Unix command.
+license: CC BY-NC-SA 4.0
 compatibility: Requires a Linux (bash) environment.
 ---
 
