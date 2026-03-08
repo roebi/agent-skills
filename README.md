@@ -6,11 +6,11 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 
 | Skill | Description |
 |-------|-------------|
-| [`create-agent-skill`](skills/create-agent-skill/) | Scaffold a new Agent Skill following the agentskills.io spec |
-| [`create-awesome-readme`](skills/create-awesome-readme/) | Generate a curated awesome-list README from a GitHub topic tag |
-| [`create-skill-proxy`](skills/create-skill-proxy/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
-| [`skill-container-proxy`](skills/skill-container-proxy/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
-| [`terminal-cli`](skills/terminal-cli/) | Reference for operating in a Linux terminal |
+| [`create-agent-skill-en`](skills/create-agent-skill-en/) | Scaffold a new Agent Skill following the agentskills.io spec |
+| [`create-awesome-readme-en`](skills/create-awesome-readme-en/) | Generate a curated awesome-list README from a GitHub topic tag |
+| [`create-skill-proxy-en`](skills/create-skill-proxy-en/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
+| [`skill-container-proxy-en`](skills/skill-container-proxy-en/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
+| [`terminal-cli-en`](skills/terminal-cli-en/) | Reference for operating in a Linux terminal |
 
 ## Naming conventions
 
@@ -21,11 +21,11 @@ subdirectories of `skills/` and are distinguished by naming convention only.
 
 | Pattern | Example(s) | Meaning |
 |---------|-----------|---------|
-| `create-agent-skill` | `create-agent-skill` | The meta skill — teaches agents how to author a new spec-compliant skill |
-| `create-skill-<type>` | `create-skill-proxy`, `create-skill-container` | Skills that scaffold other skills, by output type |
-| `create-<artifact>` | `create-awesome-readme` | Skills that produce a specific artifact or document |
-| `<tool-name>` | `terminal-cli` | Plain reference or workflow skill, named after its subject |
-| `<n>-proxy` | `skill-container-proxy`, `caddy-proxy` | Generated proxy skills wrapping a remote skill — created by `create-skill-proxy` |
+| `create-agent-skill` | `create-agent-skill-en` | The meta skill — teaches agents how to author a new spec-compliant skill |
+| `create-skill-<type>` | `create-skill-proxy-en`, `create-skill-container` | Skills that scaffold other skills, by output type |
+| `create-<artifact>` | `create-awesome-readme-en` | Skills that produce a specific artifact or document |
+| `<tool-name>` | `terminal-cli-en` | Plain reference or workflow skill, named after its subject |
+| `<n>-proxy` | `skill-container-proxy-en`, `caddy-proxy` | Generated proxy skills wrapping a remote skill — created by `create-skill-proxy` |
 
 **Rule:** all skill directory names (and therefore `name` fields) must be
 lowercase, hyphens only, no consecutive hyphens, no leading or trailing hyphens.
@@ -59,11 +59,12 @@ Add to your `.claude/settings.json`:
 ```json
 {
   "skills": [
-    "https://github.com/roebi/agent-skills/tree/main/skills/create-agent-skill",
-    "https://github.com/roebi/agent-skills/tree/main/skills/create-awesome-readme",
-    "https://github.com/roebi/agent-skills/tree/main/skills/create-skill-proxy",
-    "https://github.com/roebi/agent-skills/tree/main/skills/skill-container-proxy",
-    "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli"
+    "https://github.com/roebi/agent-skills/tree/main/skills/create-agent-skill-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/create-awesome-readme-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/create-skill-proxy-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/fortune-cowsay-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/skill-container-proxy-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli-en"
   ]
 }
 ```
@@ -79,11 +80,12 @@ git clone https://github.com/roebi/agent-skills
 
 ```bash
 pip install skills-ref
-skills-ref validate ./skills/create-agent-skill
-skills-ref validate ./skills/create-awesome-readme
-skills-ref validate ./skills/create-skill-proxy
-skills-ref validate ./skills/skill-container-proxy
-skills-ref validate ./skills/terminal-cli
+skills-ref validate ./skills/create-agent-skill-en
+skills-ref validate ./skills/create-awesome-readme-en
+skills-ref validate ./skills/create-skill-proxy-en
+skills-ref validate ./skills/fortune-cowsay-en
+skills-ref validate ./skills/skill-container-proxy-en
+skills-ref validate ./skills/terminal-cli-en
 ```
 
 ## Contributing
@@ -96,4 +98,4 @@ Pull requests welcome. Please ensure:
 
 ## License
 
-[Apache-2.0](LICENSE)
+[CC BY-NC-SA 4.0](LICENSE)
