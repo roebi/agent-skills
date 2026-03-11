@@ -12,8 +12,9 @@ description: >
 compatibility: >
   Requires read access to the source skill directory or a raw URL.
   Output is UTF-8 encoded. No additional binaries required.
+license: CC-BY-NC-SA-4.0
 metadata:
-  author: roebi-inspired
+  author: roebi
   spec: https://agentskills.io/specification
   instruction-language: en
   encoding: utf-8

@@ -12,8 +12,9 @@ description: >
 compatibility: >
   Erfordert Lesezugriff auf das Quell-Skill-Verzeichnis oder eine Raw-URL.
   Ausgabe ist UTF-8-kodiert. Keine zusätzlichen Binärdateien erforderlich.
+license: CC-BY-NC-SA-4.0
 metadata:
-  author: roebi-inspired
+  author: roebi
   spec: https://agentskills.io/specification
   instruction-language: de
   encoding: utf-8
