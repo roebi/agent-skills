@@ -25,7 +25,7 @@ Guides you through authoring a new Agent Skill that complies with the
 |---------------|------|
 | `name`        | 1–64 chars. Lowercase `a-z`, digits, hyphens only. No leading/trailing/consecutive hyphens. Must match directory name. |
 | `description` | 1–1024 chars. Describes what the skill does AND when to activate it. |
-| `license`     | Optional. Short license name or reference to bundled `LICENSE.txt`. |
+| `license`     | Optional. Short license name or reference to bundled `LICENSE.txt`. When scaffolding a new skill a default `LICENSE` file with **CC BY-NC-SA 4.0** should be added and the frontmatter set accordingly. |
 | `compatibility` | Optional, max 500 chars. List environment requirements only if non-obvious. |
 | `metadata`    | Optional. Arbitrary key-value string map. |
 | `allowed-tools` | Optional, experimental. Space-delimited list of pre-approved tools. |
@@ -70,13 +70,18 @@ mkdir -p skills/<skill-name>/references
 mkdir -p skills/<skill-name>/scripts   # only if scripts are needed
 ```
 
+> **Tip:** specify `license: CC BY-NC-SA 4.0` in your SKILL.md frontmatter. A standalone
+> `LICENSE` file is *optional*—the spec only requires the field, not a separate file. Keep it
+> simple.
+
 ### 4. Write SKILL.md
 
-Start with the frontmatter, then the body:
+Start with the frontmatter, then the body (the spec only cares about the field):
 
 ```markdown
 ---
 name: <skill-name>
+license: CC BY-NC-SA 4.0   # a single line is all that's required by agentskills.io
 description: >
   One paragraph. First sentence: what it does.
   Remaining sentences: when to activate it, what trigger
