@@ -8,9 +8,10 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 |-------|-------------|
 | [`create-agent-skill-en`](skills/create-agent-skill-en/) | Scaffold a new Agent Skill following the agentskills.io spec |
 | [`create-awesome-readme-en`](skills/create-awesome-readme-en/) | Generate a curated awesome-list README from a GitHub topic tag |
+| [`create-openscad-from-construction-image-en`](skills/create-openscad-from-construction-image-en/) | Convert a construction sketch or drawing image into a valid OpenSCAD (.scad) file |
 | [`create-skill-proxy-en`](skills/create-skill-proxy-en/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
-| [`fortune-cowsay-en`](skills/fortune-cowsay-en/) | Run fortune piped through cowsay to generate random ASCII cow art and save output to a timestamped file |
 | [`fix-unclosed-fenced-block-en`](skills/fix-unclosed-fenced-block-en/) | Fix Markdown files that contain unclosed fenced code blocks |
+| [`fortune-cowsay-en`](skills/fortune-cowsay-en/) | Run fortune piped through cowsay to generate random ASCII cow art and save output to a timestamped file |
 | [`move-skills-to-new-nameconvention-license-en`](skills/move-skills-to-new-nameconvention-license-en/) | Bulk rename skills (append postfix) and set the `license` field in every SKILL.md to CC BY-NC-SA 4.0 |
 | [`skill-container-proxy-en`](skills/skill-container-proxy-en/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
 | [`terminal-cli-en`](skills/terminal-cli-en/) | Reference for operating in a Linux terminal |
