@@ -9,8 +9,12 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 | [`create-agent-skill-en`](skills/create-agent-skill-en/) | Scaffold a new Agent Skill following the agentskills.io spec |
 | [`create-awesome-readme-en`](skills/create-awesome-readme-en/) | Generate a curated awesome-list README from a GitHub topic tag |
 | [`create-skill-proxy-en`](skills/create-skill-proxy-en/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
+| [`fortune-cowsay-en`](skills/fortune-cowsay-en/) | Run fortune piped through cowsay to generate random ASCII cow art and save output to a timestamped file |
+| [`move-skills-to-new-nameconvention-license-en`](skills/move-skills-to-new-nameconvention-license-en/) | Bulk rename skills (append postfix) and set the `license` field in every SKILL.md to CC BY-NC-SA 4.0 |
 | [`skill-container-proxy-en`](skills/skill-container-proxy-en/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
 | [`terminal-cli-en`](skills/terminal-cli-en/) | Reference for operating in a Linux terminal |
+| [`translate-skill-en`](skills/translate-skill-en/) | Translate an existing Agent Skill from one natural language to another (output in English, UTF-8) |
+| [`translate-skill-de`](skills/translate-skill-de/) | Translate an existing Agent Skill from one natural language to another (Ausgabe auf Deutsch, UTF-8) |
 
 ## Naming conventions
 
@@ -65,8 +69,11 @@ Add to your `.claude/settings.json`:
     "https://github.com/roebi/agent-skills/tree/main/skills/create-awesome-readme-en",
     "https://github.com/roebi/agent-skills/tree/main/skills/create-skill-proxy-en",
     "https://github.com/roebi/agent-skills/tree/main/skills/fortune-cowsay-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/move-skills-to-new-nameconvention-license-en",
     "https://github.com/roebi/agent-skills/tree/main/skills/skill-container-proxy-en",
-    "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli-en"
+    "https://github.com/roebi/agent-skills/tree/main/skills/terminal-cli-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/translate-skill-en",
+    "https://github.com/roebi/agent-skills/tree/main/skills/translate-skill-de"
   ]
 }
 ```
@@ -86,8 +93,11 @@ skills-ref validate ./skills/create-agent-skill-en
 skills-ref validate ./skills/create-awesome-readme-en
 skills-ref validate ./skills/create-skill-proxy-en
 skills-ref validate ./skills/fortune-cowsay-en
+skills-ref validate ./skills/move-skills-to-new-nameconvention-license-en
 skills-ref validate ./skills/skill-container-proxy-en
 skills-ref validate ./skills/terminal-cli-en
+skills-ref validate ./skills/translate-skill-en
+skills-ref validate ./skills/translate-skill-de
 ```
 
 ## Contributing
