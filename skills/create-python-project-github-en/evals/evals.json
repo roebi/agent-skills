@@ -1,0 +1,57 @@
+{
+  "skill_name": "create-python-project-github-en",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new Python project called 'swiss-ip-utils' — a pure library for working with Swiss IP address ranges. Author: Roebi Halter, roebi@example.com. GitHub user: roebi. Minimum Python: 3.11.",
+      "expected_output": "Full project scaffold: pyproject.toml (hatchling backend, uv, ruff, pytest, mypy), src/swiss_ip_utils/__init__.py, tests/test_swiss_ip_utils.py, .github/workflows/ci.yml and publish.yml, .devcontainer/maintainer/devcontainer.json, .gitignore, README.md with badges, CHANGELOG.md, and LICENSE with CC BY-NC-SA 4.0 text.",
+      "files": [],
+      "expectations": [
+        "pyproject.toml uses hatchling as build backend",
+        "pyproject.toml specifies requires-python >= 3.11",
+        "pyproject.toml includes ruff, pytest, mypy in dev optional-dependencies",
+        "src/swiss_ip_utils/__init__.py is created with __version__ = '0.1.0'",
+        "tests/test_swiss_ip_utils.py contains a test_version function",
+        "ci.yml uses astral-sh/setup-uv and runs ruff check, ruff format --check, and pytest",
+        "ci.yml typecheck job has continue-on-error: true",
+        "publish.yml triggers on v* tags and uses OIDC Trusted Publishing",
+        ".devcontainer/maintainer/devcontainer.json exists and references uv",
+        "LICENSE contains CC BY-NC-SA 4.0",
+        "README.md contains CI badge linking to GitHub Actions",
+        "CHANGELOG.md contains [Unreleased] section"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Bootstrap a new Python CLI tool project called 'roepi' — a modular Swiss Army knife CLI for software developers. CLI command name: 'roepi', entry point: roepi.cli:main. Author: Roebi Halter, roebi@example.com. GitHub: roebi. Python 3.12+.",
+      "expected_output": "Full project scaffold for a CLI tool: pyproject.toml with [project.scripts] section, src/roepi/cli.py with main() function and argparse, src/roepi/__init__.py, full CI/CD workflows, devcontainer, gitignore, README, CHANGELOG, and CC BY-NC-SA 4.0 LICENSE.",
+      "files": [],
+      "expectations": [
+        "pyproject.toml contains [project.scripts] with roepi = 'roepi.cli:main'",
+        "src/roepi/cli.py is created with a main() function",
+        "src/roepi/cli.py uses argparse",
+        "cli.py includes --version argument",
+        "pyproject.toml requires-python >= 3.12",
+        "ci.yml matrix includes python 3.12 and 3.13",
+        "publish.yml uses pypa/gh-action-pypi-publish with id-token: write permission",
+        "LICENSE contains CC BY-NC-SA 4.0"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to create a Python package. It should work as both an importable library AND a CLI tool. Package name: 'agent-skills', CLI command: 'agent-skills', entry: agent_skills.cli:main. GitHub: roebi. Python 3.11+. Author: Roebi Halter.",
+      "expected_output": "Scaffold for a 'both' style project — pyproject.toml has both importable package config and [project.scripts], src layout with __init__.py and cli.py, complete CI/CD, devcontainer, and CC BY-NC-SA 4.0 license.",
+      "files": [],
+      "expectations": [
+        "pyproject.toml name is 'agent-skills'",
+        "src/agent_skills/__init__.py exists (hyphen converted to underscore for package name)",
+        "src/agent_skills/cli.py exists",
+        "pyproject.toml contains [project.scripts] block",
+        "pyproject.toml build backend is hatchling",
+        "ci.yml lint job runs ruff check and ruff format --check",
+        "publish.yml environment is named pypi",
+        "User is instructed to configure Trusted Publishing on pypi.org"
+      ]
+    }
+  ]
+}
