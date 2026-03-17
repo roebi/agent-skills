@@ -142,6 +142,46 @@ pytest --tb=short
 
 ---
 
+## Step 6 — Generate the project conventions skill (self-generating)
+
+After the project skeleton exists, ask aider to analyse the architecture
+and generate a project-local conventions skill automatically.
+
+Start aider with the skills:
+```bash
+aider --read $(aider-skills tmpfile ./skills)
+```
+
+Then ask:
+```
+Analyse the architecture of this project and generate
+skills/<projectname>-conventions/SKILL.md capturing:
+- Key architecture decisions and layer responsibilities
+- Coding patterns and conventions used in this project
+- Error handling approach
+- Testing approach and mocking patterns
+- Code style rules
+
+Follow the agentskills spec: YAML frontmatter with name and description,
+then markdown instructions.
+```
+
+Then validate the generated skill:
+```bash
+aider-skills validate ./skills/<projectname>-conventions
+```
+
+The conventions skill becomes the **permanent memory of architecture decisions**
+for this project. Every future aider session loads it automatically:
+```bash
+aider --read $(aider-skills tmpfile ./skills)
+```
+
+Any contributor — human or AI — works within the same conventions
+from the first message, without reading the whole codebase first.
+
+---
+
 ## Example: bootstrap a podman-style CLI
 
 ```
