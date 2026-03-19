@@ -1,6 +1,6 @@
 ---
 name: create-python-project-github-en
-version: 1.0.0
+version: 1.1.0
 description: >
   Scaffold a complete, modern Python project from scratch — from `mkdir` to first PyPI publish.
   Use this skill whenever the user wants to create a new Python package, library, CLI tool, or
@@ -43,7 +43,7 @@ Before writing any file, ask the user for:
 1. **`PROJECT_NAME`** — the PyPI distribution name (e.g. `my-cool-lib`). Derived Python package name = `PROJECT_NAME` with hyphens → underscores.
 2. **`PROJECT_DESCRIPTION`** — one-sentence summary.
 3. **`GITHUB_USER`** — GitHub username or org (for URLs in pyproject.toml).
-4. **`PYTHON_MIN`** — minimum Python version to support (default: `3.11`).
+4. **`PYTHON_MIN`** — minimum Python version to support (default: `3.12`).
 5. **`PACKAGING_STYLE`** — `library`, `cli`, or `both` (if both, the project exposes both an importable package AND a CLI entry point).
 6. **`CLI_COMMAND`** (only if cli/both) — the console script name (e.g. `my-tool`).
 7. **`AUTHOR_NAME`** and **`AUTHOR_EMAIL`**.
@@ -145,7 +145,17 @@ The devcontainer gives any maintainer (or Codespace) a reproducible environment 
 
 Create `.github/workflows/ci.yml` using the template in [`references/ci-workflow.md`](references/ci-workflow.md).
 
-The CI workflow: lints with `ruff`, optionally type-checks with `mypy`, runs `pytest` across a Python version matrix (`PYTHON_MIN` → latest stable).
+The CI workflow: lints with `ruff check` and `ruff format --check` **before** running tests,
+optionally type-checks with `mypy` (non-blocking), then runs `pytest` across a Python version
+matrix from `PYTHON_MIN` through `3.13`.
+
+**Python version matrix** (always include all three):
+
+```yaml
+python-version: ["3.12", "3.13"]   # adjust lower bound to PYTHON_MIN
+```
+
+> If `PYTHON_MIN` is `3.11`, the matrix becomes `["3.11", "3.12", "3.13"]`.
 
 ### Publish workflow
 
@@ -227,8 +237,9 @@ TODO
 
 \```bash
 uv sync --all-extras
-uv run pytest
 uv run ruff check .
+uv run ruff format --check .
+uv run pytest
 \```
 
 ## License
@@ -263,8 +274,10 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 ```bash
 uv sync
-uv run pytest
 uv run ruff check .
+uv run ruff format --check .
+uv run pytest
+uv build
 git add .
 git commit -m "chore: initial project scaffold"
 git remote add origin https://github.com/GITHUB_USER/PROJECT_NAME.git
@@ -290,14 +303,15 @@ Then instruct the user to:
 
 ## Phase 9 — Verification checklist
 
-After scaffolding, verify each item:
+After scaffolding, verify each item **in this order** (linting before tests):
 
 - [ ] `uv sync` runs without errors
-- [ ] `uv run pytest` passes
 - [ ] `uv run ruff check .` returns no violations
 - [ ] `uv run ruff format --check .` returns no violations
 - [ ] `uv run mypy src/` passes (if mypy enabled)
+- [ ] `uv run pytest` passes
 - [ ] `uv build` produces a `.whl` and `.tar.gz` in `dist/`
+- [ ] CI workflow matrix includes `3.13` as the highest Python version
 - [ ] CI workflow file is valid YAML and triggers on `push` and `pull_request`
 - [ ] Publish workflow file triggers only on `v*` tags
 - [ ] `.devcontainer/maintainer/devcontainer.json` is valid JSON
