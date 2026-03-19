@@ -129,6 +129,16 @@ Use the correct template from references based on packaging style:
 
 Substitute all `PROJECT_NAME`, `PACKAGE_NAME`, `GITHUB_USER`, `AUTHOR_NAME`, `AUTHOR_EMAIL`, `PYTHON_MIN` placeholders.
 
+**Type stubs:** For every third-party dependency that lacks inline types, add its stub package to the `dev` optional-dependencies. Common ones:
+
+| Dependency | Stub package |
+|---|---|
+| `pyyaml` | `types-PyYAML` |
+| `requests` | `types-requests` |
+| `toml` | `types-toml` |
+
+For packages with no stubs available (e.g. `sentence-transformers`), use `# type: ignore[import-untyped]` on the import line — **not** a bare `# type: ignore`, which mypy will flag as unused once stubs are installed.
+
 ---
 
 ## Phase 4 — Devcontainer
@@ -308,7 +318,7 @@ After scaffolding, verify each item **in this order** (linting before tests):
 - [ ] `uv sync` runs without errors
 - [ ] `uv run ruff check .` returns no violations
 - [ ] `uv run ruff format --check .` returns no violations
-- [ ] `uv run mypy src/` passes (if mypy enabled)
+- [ ] `uv run mypy src/` passes with no errors (unused `# type: ignore` comments are errors — use `# type: ignore[import-untyped]` for untyped third-party libs)
 - [ ] `uv run pytest` passes
 - [ ] `uv build` produces a `.whl` and `.tar.gz` in `dist/`
 - [ ] CI workflow matrix includes `3.13` as the highest Python version
