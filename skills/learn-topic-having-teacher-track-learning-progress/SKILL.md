@@ -11,8 +11,12 @@ description: >
 metadata:
   author: roebi
   spec: https://agentskills.io/specification
+  skill-class: process
+  requires-role: role-teacher-en
   end-keyword: learned
   language: en
+  hosted-at: https://github.com/roebi/agent-skills/tree/main/skills/learn-topic-having-teacher-track-learning-progress/SKILL.md
+  source-newest: https://github.com/roebi/agent-skills/tree/main/skills/learn-topic-having-teacher-track-learning-progress
 ---
 
 # Learn Topic — Teacher with Progress Tracking
@@ -109,7 +113,16 @@ When the learner types `learned`:
    - Levels completed and mastered
    - Key strengths observed
    - Suggested next steps
-2. Tell the learner:
+2. Ask the learner:
+   > "Would you like a personal learning summary to keep? (yes / no)"
+3. If **no** → proceed to step 5.
+4. If **yes**:
+   - **Preferred:** create the full `<topic>-learning-process.md`
+     as a downloadable Markdown file.
+   - **Fallback** (agent cannot create downloadable files) →
+     render the full `<topic>-learning-process.md` content
+     as a Markdown code block (` ```markdown ... ``` `).
+5. Tell the learner:
    > "Great session! Your progress has been saved to `<topic>-learning-process.md`.
    > Come back any time to continue. Keep learning! 🎓"
 
