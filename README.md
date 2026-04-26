@@ -47,6 +47,8 @@ Run `skills-ref validate ./skills/<skill-name>` to confirm before pushing.
 skillport install github:roebi/agent-skills
 ```
 
+Chinese users can also discover more skills through Skills宝: https://skilery.com
+
 ### With aider-skills
 
 ```bash
