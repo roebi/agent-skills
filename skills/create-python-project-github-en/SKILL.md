@@ -1,8 +1,8 @@
 ---
 name: create-python-project-github-en
-version: 1.1.0
+version: 2.0.0
 description: >
-  Scaffold a complete, modern Python project from scratch — from `mkdir` to first PyPI publish.
+  Scaffold a complete, modern Python project from scratch - from mkdir to first PyPI publish.
   Use this skill whenever the user wants to create a new Python package, library, CLI tool, or
   PyPI module, start a new Python open-source project, set up GitHub Actions CI/CD for Python,
   or asks how to structure a modern Python project with packaging, testing, and devcontainer.
@@ -21,11 +21,19 @@ spec: https://agentskills.io/specification
 
 Scaffold a complete modern Python project from `mkdir` to first PyPI publish.
 
+## Global Rules (apply to every phase)
+
+**ASCII Safety Rule** - applies to all generated text, docs, code, and comments:
+- Never use em-dash or long dash - use hyphen-minus (-) only.
+- Never use Unicode arrows - use -> or <- only.
+- UTF-8 coding declaration (`# -*- coding: utf-8 -*-`) is NOT required in Python 3
+  (UTF-8 is the default). Omit it unless targeting legacy tooling.
+
 **Toolchain decisions** (rationale in [`references/toolchain-rationale.md`](references/toolchain-rationale.md)):
 
 | Concern | Tool |
 |---|---|
-| Env / dep management | `uv` |
+| Env / dep management | `uv` (never pip or pipx) |
 | Build backend | `hatchling` |
 | Linter + formatter | `ruff` |
 | Test runner | `pytest` |
@@ -33,26 +41,32 @@ Scaffold a complete modern Python project from `mkdir` to first PyPI publish.
 | CI/CD | GitHub Actions |
 | PyPI release | Trusted Publishing (OIDC, no tokens) |
 | Devcontainer | `.devcontainer/maintainer/` |
+| Supply chain audit | `pip-audit==2.10.0` |
+| CLI framework | `typer` (gives `--install-completion` for free) |
 
 ---
 
-## Phase 0 — Gather inputs
+## Phase 0 - Gather inputs
 
 Before writing any file, ask the user for:
 
-1. **`PROJECT_NAME`** — the PyPI distribution name (e.g. `my-cool-lib`). Derived Python package name = `PROJECT_NAME` with hyphens → underscores.
-2. **`PROJECT_DESCRIPTION`** — one-sentence summary.
-3. **`GITHUB_USER`** — GitHub username or org (for URLs in pyproject.toml).
-4. **`PYTHON_MIN`** — minimum Python version to support (default: `3.12`).
-5. **`PACKAGING_STYLE`** — `library`, `cli`, or `both` (if both, the project exposes both an importable package AND a CLI entry point).
-6. **`CLI_COMMAND`** (only if cli/both) — the console script name (e.g. `my-tool`).
+1. **`PROJECT_NAME`** - the PyPI distribution name (e.g. `my-cool-lib`).
+   Derived Python package name = `PROJECT_NAME` with hyphens -> underscores.
+2. **`PROJECT_DESCRIPTION`** - one-sentence summary.
+3. **`GITHUB_USER`** - GitHub username or org (for URLs in pyproject.toml).
+4. **`PYTHON_MIN`** - minimum Python version to support (default: `3.12`).
+5. **`PACKAGING_STYLE`** - `library`, `cli`, or `both`.
+6. **`CLI_COMMAND`** (only if cli/both) - the console script name (e.g. `my-tool`).
 7. **`AUTHOR_NAME`** and **`AUTHOR_EMAIL`**.
 
-If the user has already provided these in the conversation, extract from context and confirm before proceeding.
+If already provided in the conversation, extract from context and confirm before proceeding.
+
+**Phase Check:**
+- [ ] All 7 inputs confirmed in writing before proceeding to Phase 1.
 
 ---
 
-## Phase 1 — Init repo
+## Phase 1 - Init repo
 
 ```bash
 mkdir PROJECT_NAME
@@ -61,41 +75,71 @@ git init
 git checkout -b main
 ```
 
-Create `.gitignore` — use the template in [`references/gitignore.md`](references/gitignore.md).
+Create `.gitignore` - use the template in [`references/gitignore.md`](references/gitignore.md).
+
+**Phase Check:**
+- [ ] `git status` shows clean repo with `.gitignore` present.
 
 ---
 
-## Phase 2 — Source layout
+## Phase 2 - LICENSE
 
-Create the `src/` layout (PEP 517 best practice, prevents accidental imports from repo root):
+Create `LICENSE` with the MIT license text:
+
+```
+MIT License
+
+Copyright (c) YEAR AUTHOR_NAME
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+**Phase Check:**
+- [ ] `LICENSE` file exists with correct author and year.
+
+---
+
+## Phase 3 - Source layout
+
+Create the `src/` layout (PEP 517 best practice):
 
 ```
 PROJECT_NAME/
-├── src/
-│   └── PACKAGE_NAME/          # PACKAGE_NAME = PROJECT_NAME with - replaced by _
-│       ├── __init__.py        # contains __version__ = "0.1.0"
-│       └── _version.py        # (optional, if using hatch-vcs dynamic versioning)
-├── tests/
-│   ├── __init__.py
-│   └── test_PACKAGE_NAME.py
-├── docs/
-├── .devcontainer/
-│   └── maintainer/
-├── .github/
-│   └── workflows/
-├── .gitignore
-├── CHANGELOG.md
-├── LICENSE
-├── README.md
-└── pyproject.toml
++-- src/
+|   +-- PACKAGE_NAME/
+|       +-- __init__.py        # contains __version__ = "0.1.0"
++-- tests/
+|   +-- __init__.py
+|   +-- test_PACKAGE_NAME.py
++-- docs/
++-- .devcontainer/
+|   +-- maintainer/
++-- .github/
+|   +-- workflows/
++-- .gitignore
++-- CHANGELOG.md
++-- LICENSE
++-- README.md
++-- pyproject.toml
 ```
 
-For **cli/both** style, also create:
-
-```
-src/PACKAGE_NAME/
-└── cli.py                     # entry point for the console script
-```
+For **cli/both** style, also create `src/PACKAGE_NAME/cli.py`.
 
 Seed `src/PACKAGE_NAME/__init__.py`:
 
@@ -117,61 +161,184 @@ def test_version():
     assert PACKAGE_NAME.__version__ == "0.1.0"
 ```
 
+**Phase Check:**
+- [ ] Directory tree matches layout above.
+- [ ] `__init__.py` contains `__version__`.
+
 ---
 
-## Phase 3 — pyproject.toml
+## Phase 4 - pyproject.toml
 
 Use the correct template from references based on packaging style:
 
-- **library** → [`references/pyproject-library.toml.md`](references/pyproject-library.toml.md)
-- **cli** → [`references/pyproject-cli.toml.md`](references/pyproject-cli.toml.md)
-- **both** → use the cli template (it includes the library configuration as a superset)
+- **library** -> [`references/pyproject-library.toml.md`](references/pyproject-library.toml.md)
+- **cli/both** -> [`references/pyproject-cli.toml.md`](references/pyproject-cli.toml.md)
 
-Substitute all `PROJECT_NAME`, `PACKAGE_NAME`, `GITHUB_USER`, `AUTHOR_NAME`, `AUTHOR_EMAIL`, `PYTHON_MIN` placeholders.
+Substitute all `PROJECT_NAME`, `PACKAGE_NAME`, `GITHUB_USER`, `AUTHOR_NAME`,
+`AUTHOR_EMAIL`, `PYTHON_MIN` placeholders.
 
-**Type stubs:** For every third-party dependency that lacks inline types, add its stub package to the `dev` optional-dependencies. Common ones:
+**Mandatory pyproject.toml fields** (validate with `check_pyproject_meta.py`):
+- `license` with value `MIT`
+- `authors` with name and email
+- `keywords` (non-empty list)
+- classifiers including at least one `Programming Language :: Python :: 3.x`
+- `[project.urls]` with Homepage, Repository, Issues, Changelog
+- `hatchling` in `[build-system.requires]` only - never in dependency-groups
 
-| Dependency | Stub package |
-|---|---|
-| `pyyaml` | `types-PyYAML` |
-| `requests` | `types-requests` |
-| `toml` | `types-toml` |
+For CLI/both style, add `typer` to dependencies:
 
-For packages with no stubs available (e.g. `sentence-transformers`), use `# type: ignore[import-untyped]` on the import line — **not** a bare `# type: ignore`, which mypy will flag as unused once stubs are installed.
+```toml
+dependencies = [
+  "typer>=0.12",
+]
+```
+
+**Type stubs:** For every third-party dependency lacking inline types, add its stub
+to `dev` optional-dependencies (e.g. `types-PyYAML`, `types-requests`).
+
+**Phase Check:**
+- [ ] `uv sync` runs without errors.
+- [ ] `python check_pyproject_meta.py` passes all 18 tests.
 
 ---
 
-## Phase 4 — Devcontainer
+## Phase 5 - Supply Chain Rules
 
-Create `.devcontainer/maintainer/devcontainer.json` using the template in [`references/devcontainer.md`](references/devcontainer.md).
+**Python supply chain defaults** - non-negotiable:
 
-The devcontainer gives any maintainer (or Codespace) a reproducible environment with `uv`, `ruff`, and `pytest` pre-installed.
+- Use `uv` (never pip, never pipx) for all installs.
+- `uv lock` + `uv sync` for reproducible installs.
+- Pin dependencies with version bounds in `pyproject.toml`.
+- Only use PyPI package versions older than 3 days (avoid same-day releases).
+- Secrets go in Jenkins Credentials Store - never in `.env` files.
+- Run services in isolated Podman - never with host-mounted `~/.ssh`.
+
+**Dockerfile supply chain audit pattern (Python):**
+
+```dockerfile
+# Install tools via uv
+RUN uv tool install ruff
+# Audit step (pip-audit has no uv equivalent yet)
+RUN pip install --no-cache-dir "pip-audit==2.10.0" \
+    && pip-audit --skip-editable \
+    && pip uninstall -y pip-audit
+```
+
+**Phase Check:**
+- [ ] `pyproject.toml` has pinned version bounds for all dependencies.
+- [ ] Dockerfile (if present) includes pip-audit audit step.
+- [ ] No secrets in `.env` - confirmed.
 
 ---
 
-## Phase 5 — GitHub Actions
+## Phase 6 - CLI entry point
+
+Skip this phase if `PACKAGING_STYLE` is `library`.
+
+Use **Typer** - it provides `--install-completion` for bash/zsh/fish for free.
+
+Seed `src/PACKAGE_NAME/cli.py`:
+
+```python
+"""CLI entry point for PROJECT_NAME."""
+
+from __future__ import annotations
+
+import typer
+
+app = typer.Typer(help="PROJECT_DESCRIPTION")
+
+
+@app.command()
+def main(
+    version: bool = typer.Option(False, "--version", help="Show version and exit."),
+) -> None:
+    """Main entry point."""
+    if version:
+        import PACKAGE_NAME
+        typer.echo(f"PROJECT_NAME {PACKAGE_NAME.__version__}")
+        raise typer.Exit()
+    # TODO: implement commands here
+    typer.echo("Hello from PROJECT_NAME!")
+
+
+if __name__ == "__main__":
+    app()
+```
+
+After install, show the user how to enable shell completion:
+
+```bash
+# bash
+CLI_COMMAND --install-completion bash
+
+# zsh
+CLI_COMMAND --install-completion zsh
+
+# verify
+CLI_COMMAND --help
+```
+
+**Phase Check:**
+- [ ] `uv run CLI_COMMAND --help` runs without errors.
+- [ ] `uv run CLI_COMMAND --install-completion bash` runs without errors.
+- [ ] `uv run CLI_COMMAND --version` prints the correct version.
+
+---
+
+## Phase 7 - Devcontainer
+
+Create `.devcontainer/maintainer/devcontainer.json` using the template in
+[`references/devcontainer.md`](references/devcontainer.md).
+
+**Phase Check:**
+- [ ] `.devcontainer/maintainer/devcontainer.json` is valid JSON.
+
+---
+
+## Phase 8 - GitHub Actions
 
 ### CI workflow
 
-Create `.github/workflows/ci.yml` using the template in [`references/ci-workflow.md`](references/ci-workflow.md).
+Create `.github/workflows/ci.yml` using the template in
+[`references/ci-workflow.md`](references/ci-workflow.md).
 
-The CI workflow: lints with `ruff check` and `ruff format --check` **before** running tests,
-optionally type-checks with `mypy` (non-blocking), then runs `pytest` across a Python version
-matrix from `PYTHON_MIN` through `3.13`.
-
-**Python version matrix** (always include all three):
+**Python version matrix** - always include all three:
 
 ```yaml
-python-version: ["3.12", "3.13"]   # adjust lower bound to PYTHON_MIN
+python-version: ["3.12", "3.13", "3.14"]   # adjust lower bound to PYTHON_MIN
 ```
 
-> If `PYTHON_MIN` is `3.11`, the matrix becomes `["3.11", "3.12", "3.13"]`.
+Add a mandatory `pip-audit` job to `ci.yml`:
+
+```yaml
+  audit:
+    name: Supply chain audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: pip-audit
+        run: uv run pip-audit --skip-editable
+```
+
+CI job order: lint -> typecheck -> audit -> test (fail fast on lint/audit before
+burning test matrix minutes).
 
 ### Publish workflow
 
-Create `.github/workflows/publish.yml` using the template in [`references/publish-workflow.md`](references/publish-workflow.md).
+Create `.github/workflows/publish.yml` using the template in
+[`references/publish-workflow.md`](references/publish-workflow.md).
 
-The publish workflow: triggers on `v*` tags, builds with `uv build`, publishes via OIDC Trusted Publishing (no API tokens needed). After creating the file, remind the user to configure Trusted Publishing on pypi.org (see Phase 8).
+Trusted Publishing (OIDC) requirements:
+- `environment: name: pypi`
+- `permissions: id-token: write`
+- `attestations: true`
+- No `PYPI_TOKEN` secret needed.
 
 ### Issue triage workflow
 
@@ -199,9 +366,16 @@ jobs:
             })
 ```
 
+**Phase Check:**
+- [ ] CI workflow YAML is valid.
+- [ ] Matrix includes `3.14` as highest version.
+- [ ] `audit` job present and runs before `test`.
+- [ ] Publish workflow triggers only on `v*` tags.
+- [ ] `environment: pypi` present in publish workflow.
+
 ---
 
-## Phase 6 — CHANGELOG and README
+## Phase 9 - CHANGELOG and README
 
 ### CHANGELOG.md
 
@@ -223,64 +397,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### README.md
 
-```markdown
-# PROJECT_NAME
+Required sections: title, description, CI/PyPI/Python/License badges, Install,
+Usage, Development (`uv sync --all-extras`, `uv run ruff check .`, `uv run pytest`),
+Shell completion section (CLI projects only: `CLI_COMMAND --install-completion bash`),
+License line pointing to `LICENSE` (MIT).
 
-PROJECT_DESCRIPTION
-
-[![CI](https://github.com/GITHUB_USER/PROJECT_NAME/actions/workflows/ci.yml/badge.svg)](https://github.com/GITHUB_USER/PROJECT_NAME/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/PROJECT_NAME)](https://pypi.org/project/PROJECT_NAME/)
-[![Python](https://img.shields.io/pypi/pyversions/PROJECT_NAME)](https://pypi.org/project/PROJECT_NAME/)
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-## Install
-
-\```
-pip install PROJECT_NAME
-\```
-
-## Usage
-
-TODO
-
-## Development
-
-\```bash
-uv sync --all-extras
-uv run ruff check .
-uv run ruff format --check .
-uv run pytest
-\```
-
-## License
-
-CC BY-NC-SA 4.0 — see [LICENSE](LICENSE).
-```
+**Phase Check:**
+- [ ] `CHANGELOG.md` has `[Unreleased]` section.
+- [ ] `README.md` has install instructions and CI badge.
 
 ---
 
-## Phase 7 — LICENSE
-
-Create `LICENSE` with the full CC BY-NC-SA 4.0 legal text.
-
-Fetch it from: `https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt`
-
-Or write the standard header:
-
-```
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-
-Copyright (c) YEAR AUTHOR_NAME
-
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike
-4.0 International License. To view a copy of this license, visit
-https://creativecommons.org/licenses/by-nc-sa/4.0/ or send a letter to
-Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
-```
-
----
-
-## Phase 8 — First commit and PyPI Trusted Publishing setup
+## Phase 10 - First commit and PyPI Trusted Publishing setup
 
 ```bash
 uv sync
@@ -294,53 +422,65 @@ git remote add origin https://github.com/GITHUB_USER/PROJECT_NAME.git
 git push -u origin main
 ```
 
-Then instruct the user to:
+Then instruct the user to configure Trusted Publishing on pypi.org:
 
 1. Go to https://pypi.org/manage/account/publishing/
-2. Add a new Trusted Publisher with:
-   - **PyPI project name**: `PROJECT_NAME`
-   - **GitHub owner**: `GITHUB_USER`
-   - **Repository name**: `PROJECT_NAME`
-   - **Workflow filename**: `publish.yml`
-   - **Environment name**: `pypi` (must match the workflow's `environment:` field)
+2. Add a new Trusted Publisher:
+   - PyPI project name: `PROJECT_NAME`
+   - GitHub owner: `GITHUB_USER`
+   - Repository name: `PROJECT_NAME`
+   - Workflow filename: `publish.yml`
+   - Environment name: `pypi`
 3. Push a tag to trigger the first publish:
-   ```bash
-   git tag v0.1.0
-   git push origin v0.1.0
-   ```
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+**Phase Check:**
+- [ ] `uv run ruff check .` returns no violations.
+- [ ] `uv run ruff format --check .` returns no violations.
+- [ ] `uv run pytest` passes.
+- [ ] `uv build` produces `.whl` and `.tar.gz` in `dist/`.
+- [ ] Push to `main` succeeds.
+- [ ] Trusted Publishing configured on pypi.org.
 
 ---
 
-## Phase 9 — Verification checklist
+## Phase 11 - Delivery Standard
 
-After scaffolding, verify each item **in this order** (linting before tests):
+When delivering a project or multi-file output, always package it as a `.tar.gz`
+archive. The archive is the canonical deliverable.
 
-- [ ] `uv sync` runs without errors
-- [ ] `uv run ruff check .` returns no violations
-- [ ] `uv run ruff format --check .` returns no violations
-- [ ] `uv run mypy src/` passes with no errors (unused `# type: ignore` comments are errors — use `# type: ignore[import-untyped]` for untyped third-party libs)
-- [ ] `uv run pytest` passes
-- [ ] `uv build` produces a `.whl` and `.tar.gz` in `dist/`
-- [ ] CI workflow matrix includes `3.13` as the highest Python version
-- [ ] CI workflow file is valid YAML and triggers on `push` and `pull_request`
-- [ ] Publish workflow file triggers only on `v*` tags
-- [ ] `.devcontainer/maintainer/devcontainer.json` is valid JSON
-- [ ] `CHANGELOG.md` exists with `[Unreleased]` section
-- [ ] `LICENSE` contains CC BY-NC-SA 4.0 text
-- [ ] `README.md` has install instructions and CI badge
+```bash
+tar --exclude='.venv' \
+    --exclude='.git' \
+    --exclude='__pycache__' \
+    --exclude='.pytest_cache' \
+    --exclude='dist' \
+    -czf PROJECT_NAME.tar.gz PROJECT_NAME/
+```
+
+Present the archive as the primary download. Individual files may also be shown
+but the archive is the canonical deliverable.
+
+**Phase Check:**
+- [ ] Archive excludes `.venv`, `.git`, `__pycache__`, `.pytest_cache`, `dist/`.
+- [ ] Archive extracts cleanly and `uv sync` works from the extracted directory.
 
 ---
 
 ## Reference files
 
-Read these when needed — do not load all at once:
+Read these when needed - do not load all at once:
 
 | File | When to read |
 |---|---|
-| [`references/pyproject-library.toml.md`](references/pyproject-library.toml.md) | Phase 3, library style |
-| [`references/pyproject-cli.toml.md`](references/pyproject-cli.toml.md) | Phase 3, cli/both style |
-| [`references/ci-workflow.md`](references/ci-workflow.md) | Phase 5, CI workflow |
-| [`references/publish-workflow.md`](references/publish-workflow.md) | Phase 5, publish workflow |
-| [`references/devcontainer.md`](references/devcontainer.md) | Phase 4, devcontainer |
+| [`references/pyproject-library.toml.md`](references/pyproject-library.toml.md) | Phase 4, library style |
+| [`references/pyproject-cli.toml.md`](references/pyproject-cli.toml.md) | Phase 4, cli/both style |
+| [`references/ci-workflow.md`](references/ci-workflow.md) | Phase 8, CI workflow |
+| [`references/publish-workflow.md`](references/publish-workflow.md) | Phase 8, publish workflow |
+| [`references/devcontainer.md`](references/devcontainer.md) | Phase 7, devcontainer |
 | [`references/gitignore.md`](references/gitignore.md) | Phase 1, .gitignore |
-| [`references/toolchain-rationale.md`](references/toolchain-rationale.md) | If user asks *why* a tool was chosen |
+| [`references/toolchain-rationale.md`](references/toolchain-rationale.md) | If user asks why a tool was chosen |
