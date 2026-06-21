@@ -1,104 +1,112 @@
-Found 21 skill(s):
+Found 22 skill(s):
 
   apply-tdd-loop-en
-    Applies the Test-Driven Development (TDD) cycle as an agentic loop of RED -> GREEN -> REFACTOR iterations until all requirements are covered or all existing code paths are tested. Use when a user or agent wants to write code strictly test-first, add missing tests to existing code, or drive a full TDD session for a module, class, or function. Activate for trigger phrases like: "apply TDD", "write this test-first", "do a TDD loop", "TDD cycle for", "drive TDD on", "red green refactor", or "add tests then implement".
+    Applies the Test-Driven Development (TDD) cycle as an agentic loop of RED -> GREEN -> REFACTOR iterations until requirements are covered or code paths are tested. Activate for phrases like: "apply TDD", "do a TDD loop", or "red green refactor".
 
     ./skills/apply-tdd-loop-en/SKILL.md
 
   brainstorming-topic-dialog-creative-mentor-en
-    Runs an interactive brainstorming dialog between a creative mentor (the agent) and a brainstormer (the user). The mentor guides deep topic exploration through a growing idea-tree: the brainstormer defines 4 root perspectives (SWOT-style), then mentor and brainstormer alternately add creative branches each round until the brainstormer says "brainstormed". The session concludes with a downloadable <topic>-brainstorming-summary.md. Activate for phrases like: "brainstorm X", "help me brainstorm", "creative brainstorming session", "explore topic X with me", "brainstorming dialog", "mentor-led brainstorm", or "idea tree for X".
+    Interactive brainstorming dialog: mentor-guided idea-tree with alternating rounds and a final downloadable brainstorming summary.
 
     ./skills/brainstorming-topic-dialog-creative-mentor-en/SKILL.md
 
   create-agent-skill-en
-    Creates a new Agent Skill that follows the agentskills.io open specification. Use this skill whenever a user or agent wants to author a new skill, scaffold a skill directory, write a SKILL.md, add reference files, or add scripts to an existing skill. Activate for phrases like: "create a skill", "write a skill", "new skill for X", "scaffold a skill", "add a skill to my repo", or "make a SKILL.md".
+    Scaffold a new Agent Skill following the agentskills.io open specification. Use to create SKILL.md, references, and scripts for a new skill.
 
     ./skills/create-agent-skill-en/SKILL.md
 
   create-awesome-readme-en
-    Generates a curated awesome-list README.md by discovering GitHub repositories under a given topic tag, analyzing each repository's content, and labeling them by category and quality signals. Use when a user wants to create or update an awesome list, curate a collection of GitHub repos by topic, generate a categorized README from a GitHub topic search, or automate awesome-list maintenance. Trigger phrases: "create awesome list", "update awesome readme", "curate repos by topic", "generate README from GitHub topic", "label repos from topic tag".
+    Generate a curated awesome-list README by discovering and analyzing GitHub repositories under a given topic.
 
     ./skills/create-awesome-readme-en/SKILL.md
 
   create-file-tree-for-topic-en
-    Creates a topic-specific directory and file tree scaffold (Gerüst) as a starting point for a software solution or skill collection. Generates empty files, adds placeholder.txt in every empty directory so git tracks it, and writes a README.md in the root with metadata: topic, version, description, create timestamp (YYYYMMDD_HHMISS), creator, and license. Activate for phrases like: "create a file tree for", "scaffold a project for", "create directory structure for", "bootstrap a file scaffold", "Gerüst für", "starting point for", "create folder structure", or "new project skeleton".
+    Create a topic-specific directory and file tree scaffold with placeholder files and a README containing metadata.
 
     ./skills/create-file-tree-for-topic-en/SKILL.md
 
   create-impressum-ch-en
-    Creates a Swiss-law-compliant Impressum (legal notice / Anbieterkennzeichnung) for websites operated from Switzerland or targeting Swiss users. Guides the user through an interactive data-collection phase, then generates a ready-to-publish Impressum in both German and English. Covers obligations under UWG Art. 3, nDSG, and OR. Activate for phrases like: "create an impressum", "I need a legal notice for my Swiss website", "Impressum for .ch or .dev domain", "Swiss website legal page", or "create impressum switzerland".
+    Create a Swiss-law-compliant Impressum (legal notice) in German and English for Swiss websites.
 
     ./skills/create-impressum-ch-en/SKILL.md
 
   create-openscad-from-construction-image-en
-    Interprets a hand-drawn or photographed construction sketch (image) and generates a valid OpenSCAD (.scad) file from it. Use this skill whenever a user uploads or references a technical drawing, construction sketch, or dimension annotation image and wants a 3D-printable or CAD model as output. Activate for phrases like: "create OpenSCAD from this sketch", "generate .scad from image", "convert drawing to OpenSCAD", "make a CAD file from this photo", "3D model from this construction drawing". Supports dimension labels in English and German (e.g. Länge, Durchmesser, Innensechskant, Aussendurchmesser).
+    Convert a hand-drawn or photographed construction sketch into a valid OpenSCAD (.scad) file.
 
     ./skills/create-openscad-from-construction-image-en/SKILL.md
 
   create-privacy-policy-ch-en
-    Creates a Swiss-law-compliant Datenschutzerklärung (Privacy Policy) for websites operated from Switzerland or targeting Swiss users. Guides the user through an interactive data-inventory phase covering all processing activities (hosting, fonts, analytics, contact forms, cookies, external embeds, etc.), then generates a ready-to-publish Privacy Policy in German and/or English. Covers obligations under nDSG (in force 01.09.2023), DSG Art. 19, and where relevant DSGVO (for EU visitors). Activate for phrases like: "create a privacy policy", "Datenschutzerklärung erstellen", "I need a privacy policy for my Swiss website", "nDSG privacy policy", "DSGVO Datenschutz", or "create privacy policy switzerland".
+    Generate a Swiss-law-compliant privacy policy (Datenschutzerklärung) covering common processing activities and obligations.
 
     ./skills/create-privacy-policy-ch-en/SKILL.md
 
   create-python-project-github-en
-    Scaffold a complete, modern Python project from scratch - from mkdir to first PyPI publish. Use this skill whenever the user wants to create a new Python package, library, CLI tool, or PyPI module, start a new Python open-source project, set up GitHub Actions CI/CD for Python, or asks how to structure a modern Python project with packaging, testing, and devcontainer. Also triggers for "new pypi module", "python project template", "python package from scratch", "hatch", "uv init", or any request to bootstrap a Python repo with best practices.
+    Scaffold a modern Python project from scratch including packaging, CI, devcontainer, and publish guidance.
 
     ./skills/create-python-project-github-en/SKILL.md
 
   create-questions-and-answers-en
-    Runs a structured Q&A loop with a user: prompts them for questions one at a time, answers each question, then compiles all questions and answers into a downloadable Markdown file at the end. Use this skill whenever a user wants to test a configuration, probe knowledge, document a session, or explore a topic interactively. Activate for phrases like: "let us do a Q&A", "ask me questions", "I have questions for you to answer", "test my setup with questions", "compile a Q&A document", or "end of questions".
+    Run a structured Q&A loop, answer questions one at a time, and compile the session into a Markdown file.
 
     ./skills/create-questions-and-answers-en/SKILL.md
 
   create-skill-proxy-en
-    Creates a local proxy skill that wraps a remote Agent Skill from any GitHub repository. The proxy pins the remote skill to an exact commit hash and SHA-256 checksum so the agent verifies content integrity on every use. Use when a user wants to add an external skill to their skill library, proxy a remote skill, pin and trust a skill from GitHub, or wrap a foreign skill safely. Trigger phrases: "proxy this skill", "add external skill", "wrap remote skill", "pin this skill from GitHub".
+    Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub to a specific commit and checksum.
 
     ./skills/create-skill-proxy-en/SKILL.md
 
   fix-unclosed-fenced-block-en
-    Detect and fix unclosed fenced blocks (``` ... ```) in Markdown text. Use this skill whenever the user reports that a fenced block was not closed, when generated Markdown contains an unclosed fence, or when a heading or new section appears inside what should have been a fenced block. Fenced blocks are used for code, terminal output, file trees, config files, examples, and any verbatim content. Triggers on phrases like "unclosed fenced block", "missing closing fence", "backtick block not closed", or when the user pastes broken Markdown output for repair. Apply proactively when reviewing any self-generated Markdown before delivering it to the user.
+    Detect and fix unclosed fenced code blocks in Markdown content; useful for repairing generated or pasted Markdown.
 
     ./skills/fix-unclosed-fenced-block-en/SKILL.md
 
   fortune-cowsay-en
-    Runs fortune piped through cowsay to generate random ASCII cow art with a fun quote. Use this skill when you want a random fortune quote displayed as ASCII cow art or to generate a timestamped output file. Trigger phrases include: fortune, cowsay, ASCII cow, random quote.
+    Run `fortune` piped through `cowsay` to produce ASCII-art fortunes and optionally save timestamped outputs.
 
     ./skills/fortune-cowsay-en/SKILL.md
 
   learn-topic-having-teacher-track-learning-progress
-    Acts as a knowledgeable Teacher that guides a learner through any topic using a structured 5-level learning plan, tracked in a living <topic>-learning-process.md file. Activate when the user says "teach me", "I want to learn", "explain step by step", "learning session", or asks to start a tutoring or teaching loop on any subject. The skill runs an interactive teach-ask-answer loop, evolving the progress file every iteration, until the learner types "learned".
+    Teacher-guided learning skill that tracks progress in a living <topic>-learning-process.md file using a 5-level plan.
 
     ./skills/learn-topic-having-teacher-track-learning-progress/SKILL.md
 
   move-skills-to-new-nameconvention-license-en
-    Renames all agent skills in a GitHub repository by appending a postfix to each skill's folder name and SKILL.md name field, and sets the license field in each SKILL.md frontmatter to CC BY-NC-SA 4.0. Reentrant and idempotent — safe to run multiple times with the same or a different postfix. Use this skill when a user wants to bulk-rename skills with a new naming convention, update the license field in skill frontmatter, or both — triggered by phrases like "rename my skills", "add postfix to skills", "update license field", "apply new naming convention to agent skills", or "prepare skills for new license".
+    Bulk-rename skills by appending a postfix and set the SKILL.md `license` field to CC BY-NC-SA 4.0 across a repo.
+
     ./skills/move-skills-to-new-nameconvention-license-en/SKILL.md
 
   project-bootstrap-en
-    For a given software project goal, recommend the best local LLM model and the skills needed to start implementation. Covers CLI tools, Python libraries, and similar projects.
+    Recommend a local LLM and the set of skills to start implementing a software project, covering tooling and libraries.
+
     ./skills/project-bootstrap-en/SKILL.md
 
   quick-documentation-en
-    Generates compact JSDoc comments or Python docstrings directly above function definitions. Activate for phrases like "doc-this", "document this", "add docs", "add a docstring", "add JSDoc", or whenever the user requests documentation for a code block. Supports JavaScript, TypeScript, and Python. Does not alter any code logic.
+    Generate compact JSDoc comments or Python docstrings directly above function definitions to document code.
 
     ./skills/quick-documentation-en/SKILL.md
 
+  session-git-lifecycle-en
+    Defines a git-based lifecycle for agent chat sessions (CREATE and RESUME) and delivery handover tag conventions.
+
+    ./skills/session-git-lifecycle-en/SKILL.md
+
   skill-container-proxy-en
-    Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format: OCI containers published to GHCR with a CLI entrypoint, a Containerfile, and GitHub-based distribution. Use when you want to create a new containerized skill, migrate a plain Agent Skill to Skill Container format, or package a skill for portable cross-platform distribution. Trigger phrases: "create skill container", "containerize this skill", "migrate skill to container", "package skill as OCI". Use exactly as you would use skill-container directly.
+    Proxy to package or migrate Agent Skills into a Skill Container/OCI format for distribution (GHCR, Containerfile, CLI).
+
     ./skills/skill-container-proxy-en/SKILL.md
 
   terminal-cli-en
-    Reference for operating in a Linux terminal. Use when the user or agent needs to run bash commands, combine commands with && or pipes, read files, sort and deduplicate output, write and execute shell scripts, work with the filesystem (files, links, mounts, permissions), install or update packages, get help on commands, manage containers with Podman, make HTTP requests with curl, manage Kubernetes clusters with kubectl, manage Helm charts, handle environment variables, or launch AI coding agents (aider-chat, claude). Activate this skill for any task involving: bash, shell, terminal, CLI, script, pipe, podman, kubectl, helm, curl, apt, pip, environment variable, aider, or any Unix command.
+    Reference for operating in a Unix/Linux terminal: commands, pipes, scripts, containers, kubectl, curl, and common workflows.
 
     ./skills/terminal-cli-en/SKILL.md
 
   translate-skill-de
-    Übersetzt einen bestehenden Agent Skill (SKILL.md und alle gebündelten Dateien) von einer natürlichen Sprache in eine andere. Der übersetzte Skill wird auf Deutsch verfasst und als UTF-8 gespeichert. Diesen Skill verwenden, wenn ein Benutzer einen Skill übersetzen, in eine andere Sprache portieren oder für Sprecher einer anderen Sprache zugänglich machen möchte. Aktivieren bei Phrasen wie: "Skill übersetzen", "Skill von X nach Y übersetzen", "deutsche Version dieses Skills erstellen", "Skill ins Französische portieren", "Sprachvariante erstellen" oder "SKILL.md übersetzen".
+    Translate an existing Agent Skill into German; outputs SKILL.md and bundled files in UTF-8.
 
     ./skills/translate-skill-de/SKILL.md
 
   translate-skill-en
-    Translates an existing Agent Skill (SKILL.md and all bundled files) from one natural language to another. The translated skill is written in English and saved as UTF-8. Use this skill whenever a user wants to translate a skill, port a skill to another language, make a skill accessible to speakers of a different language, or create a language variant of an existing skill. Activate for phrases like: "translate this skill", "translate skill from X to Y", "make a German version of this skill", "port skill to French", "create a language variant", or "translate SKILL.md".
+    Translate an existing Agent Skill into English; outputs SKILL.md and bundled files in UTF-8.
 
     ./skills/translate-skill-en/SKILL.md
 

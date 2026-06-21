@@ -6,17 +6,28 @@ Agent Skills following the [agentskills.io](https://agentskills.io) open specifi
 
 | Skill | Description |
 |-------|-------------|
-| [`create-agent-skill-en`](skills/create-agent-skill-en/) | Scaffold a new Agent Skill following the agentskills.io spec |
-| [`create-awesome-readme-en`](skills/create-awesome-readme-en/) | Generate a curated awesome-list README from a GitHub topic tag |
-| [`create-openscad-from-construction-image-en`](skills/create-openscad-from-construction-image-en/) | Convert a construction sketch or drawing image into a valid OpenSCAD (.scad) file |
-| [`create-skill-proxy-en`](skills/create-skill-proxy-en/) | Create a local proxy skill that wraps and pins a remote Agent Skill from GitHub |
-| [`fix-unclosed-fenced-block-en`](skills/fix-unclosed-fenced-block-en/) | Fix Markdown files that contain unclosed fenced code blocks |
-| [`fortune-cowsay-en`](skills/fortune-cowsay-en/) | Run fortune piped through cowsay to generate random ASCII cow art and save output to a timestamped file |
-| [`move-skills-to-new-nameconvention-license-en`](skills/move-skills-to-new-nameconvention-license-en/) | Bulk rename skills (append postfix) and set the `license` field in every SKILL.md to CC BY-NC-SA 4.0 |
-| [`skill-container-proxy-en`](skills/skill-container-proxy-en/) | Proxy for skill-container by observerw. Creates new Agent Skills or migrates existing ones into the Skill Container format |
-| [`terminal-cli-en`](skills/terminal-cli-en/) | Reference for operating in a Linux terminal |
-| [`translate-skill-de`](skills/translate-skill-de/) | Translate an existing Agent Skill from one natural language to another (Ausgabe auf Deutsch, UTF-8) |
-| [`translate-skill-en`](skills/translate-skill-en/) | Translate an existing Agent Skill from one natural language to another (output in English, UTF-8) |
+| [`apply-tdd-loop-en`](skills/apply-tdd-loop-en/) | Applies the Test-Driven Development (TDD) cycle as an agentic RED -> GREEN -> REFACTOR loop |
+| [`brainstorming-topic-dialog-creative-mentor-en`](skills/brainstorming-topic-dialog-creative-mentor-en/) | Interactive brainstorming mentor dialog that builds an idea-tree and produces a summary |
+| [`create-agent-skill-en`](skills/create-agent-skill-en/) | Scaffold a new Agent Skill following the agentskills.io specification |
+| [`create-awesome-readme-en`](skills/create-awesome-readme-en/) | Generate a curated awesome-list README from GitHub topic search results |
+| [`create-file-tree-for-topic-en`](skills/create-file-tree-for-topic-en/) | Scaffold a topic-specific directory and file tree with README and placeholders |
+| [`create-impressum-ch-en`](skills/create-impressum-ch-en/) | Create a Swiss-law-compliant Impressum (legal notice) in German and English |
+| [`create-openscad-from-construction-image-en`](skills/create-openscad-from-construction-image-en/) | Convert a construction sketch or photo into a valid OpenSCAD (.scad) file |
+| [`create-privacy-policy-ch-en`](skills/create-privacy-policy-ch-en/) | Generate a Swiss-law-compliant privacy policy (Datenschutzerklärung) |
+| [`create-python-project-github-en`](skills/create-python-project-github-en/) | Scaffold a modern Python project with packaging, CI, and best practices |
+| [`create-questions-and-answers-en`](skills/create-questions-and-answers-en/) | Run a structured Q&A loop and compile questions/answers into a Markdown file |
+| [`create-skill-proxy-en`](skills/create-skill-proxy-en/) | Create a local proxy that pins a remote Agent Skill from GitHub to a commit |
+| [`fix-unclosed-fenced-block-en`](skills/fix-unclosed-fenced-block-en/) | Detect and fix unclosed fenced code blocks in Markdown |
+| [`fortune-cowsay-en`](skills/fortune-cowsay-en/) | Run `fortune` piped through `cowsay` to produce ASCII-art fortunes and save output |
+| [`learn-topic-having-teacher-track-learning-progress`](skills/learn-topic-having-teacher-track-learning-progress/) | Teacher-guided 5-level learning plan with a living progress file for a topic |
+| [`move-skills-to-new-nameconvention-license-en`](skills/move-skills-to-new-nameconvention-license-en/) | Bulk-rename skills and set SKILL.md `license` fields to CC BY-NC-SA 4.0 |
+| [`project-bootstrap-en`](skills/project-bootstrap-en/) | Recommend a local LLM and initial skills for bootstrapping a software project |
+| [`quick-documentation-en`](skills/quick-documentation-en/) | Generate concise JSDoc comments or Python docstrings for code blocks |
+| [`session-git-lifecycle-en`](skills/session-git-lifecycle-en/) | Git-based session lifecycle: CREATE and RESUME procedures for agent sessions |
+| [`skill-container-proxy-en`](skills/skill-container-proxy-en/) | Proxy to package or migrate skills into a container/OCI Skill Container format |
+| [`terminal-cli-en`](skills/terminal-cli-en/) | Reference for operating in a Unix/Linux terminal and common CLI workflows |
+| [`translate-skill-de`](skills/translate-skill-de/) | Translate an existing Agent Skill into German (UTF-8) |
+| [`translate-skill-en`](skills/translate-skill-en/) | Translate an existing Agent Skill into English (UTF-8) |
 
 ## Naming conventions
 
@@ -91,11 +102,24 @@ git clone https://github.com/roebi/agent-skills
 
 ```bash
 pip install skills-ref
+skills-ref validate ./skills/apply-tdd-loop-en
+skills-ref validate ./skills/brainstorming-topic-dialog-creative-mentor-en
 skills-ref validate ./skills/create-agent-skill-en
 skills-ref validate ./skills/create-awesome-readme-en
+skills-ref validate ./skills/create-file-tree-for-topic-en
+skills-ref validate ./skills/create-impressum-ch-en
+skills-ref validate ./skills/create-openscad-from-construction-image-en
+skills-ref validate ./skills/create-privacy-policy-ch-en
+skills-ref validate ./skills/create-python-project-github-en
+skills-ref validate ./skills/create-questions-and-answers-en
 skills-ref validate ./skills/create-skill-proxy-en
+skills-ref validate ./skills/fix-unclosed-fenced-block-en
 skills-ref validate ./skills/fortune-cowsay-en
+skills-ref validate ./skills/learn-topic-having-teacher-track-learning-progress
 skills-ref validate ./skills/move-skills-to-new-nameconvention-license-en
+skills-ref validate ./skills/project-bootstrap-en
+skills-ref validate ./skills/quick-documentation-en
+skills-ref validate ./skills/session-git-lifecycle-en
 skills-ref validate ./skills/skill-container-proxy-en
 skills-ref validate ./skills/terminal-cli-en
 skills-ref validate ./skills/translate-skill-en
